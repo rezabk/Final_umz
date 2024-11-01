@@ -270,6 +270,30 @@ namespace Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ApplicationUserClass",
+                columns: table => new
+                {
+                    ClassesId = table.Column<int>(type: "int", nullable: false),
+                    StudentsId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ApplicationUserClass", x => new { x.ClassesId, x.StudentsId });
+                    table.ForeignKey(
+                        name: "FK_ApplicationUserClass_AspNetUsers_StudentsId",
+                        column: x => x.StudentsId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ApplicationUserClass_Class_ClassesId",
+                        column: x => x.ClassesId,
+                        principalTable: "Class",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Practice",
                 columns: table => new
                 {
@@ -329,15 +353,89 @@ namespace Persistence.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "PracticeQuestionAnswer",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    PracticeQuestionId = table.Column<int>(type: "int", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FileName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FileExtension = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    InsertByUserId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    InsertTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsRemoved = table.Column<bool>(type: "bit", nullable: true),
+                    RemoveByUserId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RemoveTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdateByUserId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UpdateTime = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PracticeQuestionAnswer", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PracticeQuestionAnswer_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PracticeQuestionAnswer_PracticeQuestion_PracticeQuestionId",
+                        column: x => x.PracticeQuestionId,
+                        principalTable: "PracticeQuestion",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserAnsweredQuestion",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    PracticeQuestionId = table.Column<int>(type: "int", nullable: false),
+                    InsertByUserId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    InsertTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsRemoved = table.Column<bool>(type: "bit", nullable: true),
+                    RemoveByUserId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RemoveTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdateByUserId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UpdateTime = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserAnsweredQuestion", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserAnsweredQuestion_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserAnsweredQuestion_PracticeQuestion_PracticeQuestionId",
+                        column: x => x.PracticeQuestionId,
+                        principalTable: "PracticeQuestion",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { 1, "cb9ef645-2841-42e0-bc14-b0e26ce27130", "Admin", "Admin" },
-                    { 2, "df309bcd-3812-4237-8fc7-ae9ac2c20e22", "Teacher", "Teacher" },
-                    { 3, "5f605c9a-271d-4834-a7e8-3da12dc07352", "Student", "Student" }
+                    { 1, "15223aa1-6507-4c89-9a37-0e005639a6ac", "Admin", "Admin" },
+                    { 2, "1c655bc3-e64b-4fe2-b3b1-d04187f0814a", "Teacher", "Teacher" },
+                    { 3, "fa19c2f4-5767-4f8c-b068-291e93741747", "Student", "Student" }
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApplicationUserClass_StudentsId",
+                table: "ApplicationUserClass",
+                column: "StudentsId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -394,14 +492,37 @@ namespace Persistence.Migrations
                 column: "PracticeId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PracticeQuestionAnswer_PracticeQuestionId",
+                table: "PracticeQuestionAnswer",
+                column: "PracticeQuestionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PracticeQuestionAnswer_UserId",
+                table: "PracticeQuestionAnswer",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Teacher_UserId",
                 table: "Teacher",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserAnsweredQuestion_PracticeQuestionId",
+                table: "UserAnsweredQuestion",
+                column: "PracticeQuestionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserAnsweredQuestion_UserId",
+                table: "UserAnsweredQuestion",
                 column: "UserId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "ApplicationUserClass");
+
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
@@ -421,13 +542,19 @@ namespace Persistence.Migrations
                 name: "PhoneNumberCode");
 
             migrationBuilder.DropTable(
-                name: "PracticeQuestion");
+                name: "PracticeQuestionAnswer");
 
             migrationBuilder.DropTable(
                 name: "Test");
 
             migrationBuilder.DropTable(
+                name: "UserAnsweredQuestion");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "PracticeQuestion");
 
             migrationBuilder.DropTable(
                 name: "Practice");

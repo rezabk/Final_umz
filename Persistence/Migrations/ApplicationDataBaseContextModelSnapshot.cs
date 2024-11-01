@@ -426,21 +426,21 @@ namespace Persistence.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "533cda6c-35b1-40e3-b3dd-832c6d69afd2",
+                            ConcurrencyStamp = "15223aa1-6507-4c89-9a37-0e005639a6ac",
                             Name = "Admin",
                             NormalizedName = "Admin"
                         },
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "378057e9-55d6-4b5b-a484-f253be7e7503",
+                            ConcurrencyStamp = "1c655bc3-e64b-4fe2-b3b1-d04187f0814a",
                             Name = "Teacher",
                             NormalizedName = "Teacher"
                         },
                         new
                         {
                             Id = 3,
-                            ConcurrencyStamp = "5c6def37-5b45-4f4d-894d-b05e6da7b091",
+                            ConcurrencyStamp = "fa19c2f4-5767-4f8c-b068-291e93741747",
                             Name = "Student",
                             NormalizedName = "Student"
                         });
