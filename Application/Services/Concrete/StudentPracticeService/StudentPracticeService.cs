@@ -85,16 +85,7 @@ public class StudentPracticeService : ServiceBase<StudentPracticeService>, IStud
 
         var newPracticeQuestionAnswer = new PracticeQuestionAnswer
             { PracticeQuestionId = model.PracticeQuestionId, Description = model.Description, UserId = CurrentUserId };
-
-        if (model.File != null)
-        {
-            var filePath = UploadFile(model.File);
-            newPracticeQuestionAnswer.FileName = string.IsNullOrEmpty(filePath) ? null : Path.GetFileName(filePath);
-            newPracticeQuestionAnswer.FileExtension =
-                string.IsNullOrEmpty(filePath) ? null : Path.GetExtension(filePath);
-        }
-
-
+      
         try
         {
             practiceQuestion.PracticeQuestionAnswers.Add(newPracticeQuestionAnswer);

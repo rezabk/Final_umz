@@ -1,10 +1,11 @@
-﻿using System.Text;
-using DocumentFormat.OpenXml.Drawing;
-using DocumentFormat.OpenXml.Packaging;
-using iTextSharp.text;
-using iTextSharp.text.pdf;
+﻿using System.Collections.Generic;
+using System.IO;
 using Microsoft.AspNetCore.Mvc;
-using Paragraph = iTextSharp.text.Paragraph;
+using PdfSharpCore.Pdf;
+using MigraDocCore.DocumentObjectModel;
+using MigraDocCore.Rendering;
+using System.Text;
+using SixLabors.Fonts;
 
 namespace Api.Controllers;
 
@@ -13,38 +14,91 @@ public class TestController : BaseController
     [HttpGet("[action]")]
     public IActionResult GeneratePdfController()
     {
-        var templatePath = "C:\\Users\\DKDT\\Desktop\\Final_Umz_Project\\Common\\Template\\template.docx";
-        var templateContent = System.IO.File.ReadAllText(templatePath, Encoding.UTF8);
 
-        var textContent = new StringBuilder();
-        using (WordprocessingDocument wordDoc = WordprocessingDocument.Open(templatePath, false))
+        string studentId = "123456";
+        string studentName = "نام و نام خانوادگی";
+        string assignmentName = "نام تمرین";
+        List<string> answers = new List<string> { "پاسخ اول", "پاسخ دوم", "پاسخ سوم" };
+
+        // Create the PDF document in memory
+        var pdfDocument = CreatePdfDocument(studentId, studentName, assignmentName, answers);
+
+        // Render the PDF document to a memory stream
+        using var stream = new MemoryStream();
+        pdfDocument.Save(stream, false);
+
+        // Return the PDF as a downloadable file
+        stream.Position = 0; // Reset stream position
+        return File(stream.ToArray(), "application/pdf", "PersianPdfExample.pdf");
+    }
+    
+     private PdfDocument CreatePdfDocument(string studentId, string studentName, string assignmentName, List<string> answers)
+    {
+        // Initialize a new MigraDoc document
+        Document document = new Document();
+        Section section = document.AddSection();
+
+        // Define the font path and load it with SixLabors.Fonts
+        string fontPath = "C:\\Users\\Reza\\Desktop\\Final_Project-main\\Common\\B-NAZANIN.TTF"; // Update to actual font path
+        var fontCollection = new FontCollection();
+        var persianFontFamily = fontCollection.Add(fontPath);
+        
+        // Set RTL text direction for the document section
+        section.PageSetup.RightMargin = Unit.FromCentimeter(1);
+        section.PageSetup.LeftMargin = Unit.FromCentimeter(1);
+        section.PageSetup.PageFormat = PageFormat.A4;
+        section.PageSetup.Orientation = Orientation.Portrait;
+
+        // Helper method to set paragraph font
+        void SetParagraphFont(Paragraph paragraph, bool isBold = false)
         {
-            // Extract text from the document
-            foreach (var text in wordDoc.MainDocumentPart.Document.Body.Descendants<Text>())
-            {
-                textContent.Append(text.Text);
-            }
+            paragraph.Format.Font.Name = persianFontFamily.Name;
+            paragraph.Format.Font.Size = 12;
+            paragraph.Format.Font.Bold = isBold;
+            paragraph.Format.Alignment = ParagraphAlignment.Right;
         }
 
-        textContent.ToString()
-            .Replace("@student_number", "test")
-            .Replace("@fullname", "test")
-            .Replace("@practice_title", "test")
-            .Replace("@practice_answer", "test");
+        // Add student ID
+        var studentIdParagraph = section.AddParagraph();
+        studentIdParagraph.AddFormattedText("شماره دانشجویی: " + studentId);
+        SetParagraphFont(studentIdParagraph, isBold: true);
 
+        // Add student name
+        var studentNameParagraph = section.AddParagraph();
+        studentNameParagraph.AddFormattedText("نام و نام خانوادگی: " + studentName);
+        SetParagraphFont(studentNameParagraph, isBold: true);
 
-        using var memoryStream = new MemoryStream();
-        var document = new Document();
-        PdfWriter.GetInstance(document, memoryStream);
-        document.Open();
+        // Add assignment name
+        var assignmentNameParagraph = section.AddParagraph();
+        assignmentNameParagraph.AddFormattedText("نام تمرین: " + assignmentName);
+        SetParagraphFont(assignmentNameParagraph, isBold: true);
 
-        document.Add(new Paragraph(templateContent));
+        // Add answers list with space before it
+        section.AddParagraph("\n");
+        int questionNumber = 1;
 
-        document.Close();
+        foreach (var answer in answers)
+        {
+            // Question number
+            var questionParagraph = section.AddParagraph();
+            questionParagraph.AddFormattedText($"{questionNumber}- ", TextFormat.Bold);
+            SetParagraphFont(questionParagraph);
 
+            // Answer text
+            var answerParagraph = section.AddParagraph();
+            answerParagraph.AddFormattedText(answer);
+            SetParagraphFont(answerParagraph);
 
-        var pdfBytes = memoryStream.ToArray();
+            questionNumber++;
+        }
 
-        return File(pdfBytes, "application/pdf", "example.pdf");
+        // Render document to PDF
+        PdfDocumentRenderer pdfRenderer = new PdfDocumentRenderer(true)
+        {
+            Document = document
+        };
+        pdfRenderer.RenderDocument();
+        
+        return pdfRenderer.PdfDocument;
     }
 }
