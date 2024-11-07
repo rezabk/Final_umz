@@ -6,6 +6,7 @@ using Application.Services.Interface.ProfileService;
 using Application.Services.Interface.ProfileService.ProfileValidator;
 using Application.ViewModels.Profile;
 using Application.ViewModels.Profile.ChangePassword;
+using Application.ViewModels.Public;
 using Common;
 using Common.Enums;
 using Common.ExceptionType.CustomException;
@@ -23,14 +24,14 @@ public class ProfileService : ServiceBase<ProfileService>, IProfileService
 {
     private readonly ICustomLoggerService<ProfileService> _logger;
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IUploader _uploader;
+    private readonly ILiaraUploader _uploader;
     private readonly IConfiguration _configuration;
     private readonly IWebHostEnvironment _hostingEnvironment;
     private readonly IProfileValidator _profileValidator;
 
     public ProfileService(IHttpContextAccessor contextAccessor, IUnitOfWork unitOfWork,
         ICustomLoggerService<ProfileService> logger, IProfileValidator profileValidator,
-        IUploader uploader,
+        ILiaraUploader uploader,
         IConfiguration configuration, IWebHostEnvironment hostingEnvironment,
         UserManager<ApplicationUser> userManager) : base(contextAccessor)
     {
@@ -65,17 +66,18 @@ public class ProfileService : ServiceBase<ProfileService>, IProfileService
         var user = await _userManager.Users.Where(x => x.Id == CurrentUserId).FirstOrDefaultAsync() ??
                    throw new NotFoundException();
 
-         await _profileValidator.ValidateUpdateUser(user, model);
-        
+        await _profileValidator.ValidateUpdateUser(user, model);
+
         user.FirstName = model.FirstName;
         user.LastName = model.LastName;
         user.Birthday = model.Birthday.ConvertJalaliToMiladi();
         if (!string.IsNullOrEmpty(model.PhoneNumber)) user.PhoneNumber = model.PhoneNumber;
         if (!string.IsNullOrEmpty(model.Email)) user.Email = model.Email;
 
+        if (!string.IsNullOrWhiteSpace(user.ProfileImageFileName)) _ = DeleteFile(user.ProfileImageFileName);
         if (model.File != null)
         {
-            var filePath = UploadFile(model.File);
+            var filePath = UploadFile(model.File).Result;
             user.ProfileImageFileName = string.IsNullOrEmpty(filePath) ? null : Path.GetFileName(filePath);
             user.ProfileImageFileExtension = string.IsNullOrEmpty(filePath) ? null : Path.GetExtension(filePath);
         }
@@ -99,24 +101,29 @@ public class ProfileService : ServiceBase<ProfileService>, IProfileService
         return true;
     }
 
-    public async Task<string> GetUserFileImage(string fileName)
+    public Task<ResponseGetFileViewModel> GetUserFileImage(string fileName)
     {
-        var user = await _userManager.Users.SingleOrDefaultAsync(x => x.ProfileImageFileName == fileName)
+        var user = _userManager.Users.FirstOrDefault(x => x.ProfileImageFileName == fileName)
                    ?? throw new NotFoundException();
 
-        var folderPath = _hostingEnvironment.ContentRootPath +
-                         _configuration.GetSection("File:ImageFile").Value;
-        var fullPath = Path.Combine(folderPath, user.ProfileImageFileName);
-
-        return fullPath;
+      
+        return Task.FromResult(new ResponseGetFileViewModel
+        {
+            FileName = user.ProfileImageFileName,
+            MemoryStream = _uploader.Get(_configuration.GetSection("File:UserProfile").Value,
+                user.ProfileImageFileName, null).Result
+        });
     }
 
-    private string UploadFile(IFormFile file)
+    private async Task<string> UploadFile(IFormFile file)
     {
-        var fullFilePath = _uploader.UploadFile(file,
-            _hostingEnvironment.ContentRootPath + _configuration.GetSection("File:ImageFile").Value,
-            "").Result;
+        var fileName = await _uploader.Upload(_configuration.GetSection("File:UserProfile").Value, file, null);
+        return fileName;
+    }
 
-        return fullFilePath;
+    private async Task<bool> DeleteFile(string fileName)
+    {
+        await _uploader.Delete(_configuration.GetSection("File:UserProfile").Value, fileName, null);
+        return true;
     }
 }

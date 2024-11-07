@@ -1,4 +1,5 @@
 ﻿using Application.ViewModels.PracticeQuestion;
+using Application.ViewModels.Public;
 
 namespace Application.Services.Interface.TeacherService.TeacherPracticeQuestionService;
 
@@ -9,5 +10,5 @@ public interface ITeacherPracticeQuestionService
 
     Task<bool> RemoveQuestion(int practiceQuestionId);
     
-    Task<string> GetQuestionImage(string fileName);
+    Task<ResponseGetFileViewModel> GetQuestionImage(string fileName);
 }

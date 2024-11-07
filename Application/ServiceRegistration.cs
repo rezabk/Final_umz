@@ -66,6 +66,7 @@ public static class ServiceRegistration
 
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IUploader, Uploader>();
+        services.AddScoped<ILiaraUploader, LiaraUploader>();
         services.AddScoped<ISmsService, SmsService>();
 
         services.AddSingleton(typeof(ICustomLoggerService<>), typeof(CustomLoggerService<>));

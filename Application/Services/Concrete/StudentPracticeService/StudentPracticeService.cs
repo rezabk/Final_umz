@@ -5,6 +5,7 @@ using Application.Services.Interface.Logger;
 using Application.Services.Interface.StudentPracticeService;
 using Application.ViewModels.Practice;
 using Application.ViewModels.PracticeQuestion;
+using Application.ViewModels.Public;
 using Common;
 using Common.Enums;
 using Common.ExceptionType.CustomException;
@@ -22,10 +23,10 @@ public class StudentPracticeService : ServiceBase<StudentPracticeService>, IStud
     private readonly IRepository<PracticeQuestion> _practiceQuestionRepository;
     private readonly IConfiguration _configuration;
     private readonly IWebHostEnvironment _hostingEnvironment;
-    private readonly IUploader _uploader;
+    private readonly ILiaraUploader _uploader;
     private readonly ICustomLoggerService<StudentPracticeService> _logger;
 
-    public StudentPracticeService(IUnitOfWork unitOfWork, IConfiguration configuration, IUploader uploader,
+    public StudentPracticeService(IUnitOfWork unitOfWork, IConfiguration configuration, ILiaraUploader uploader,
         IHttpContextAccessor httpContextAccessor,
         IWebHostEnvironment hostingEnvironment,
         ICustomLoggerService<StudentPracticeService> logger) : base(httpContextAccessor)
@@ -74,7 +75,7 @@ public class StudentPracticeService : ServiceBase<StudentPracticeService>, IStud
     {
         var practiceQuestion =
             _practiceQuestionRepository.DeferredWhere(x => x.Practice != null && x.Id == model.PracticeQuestionId)
-                .Include(x => x.UserAnsweredQuestions).Include(x => x.PracticeQuestionAnswers).Include(x=>x.Practice)
+                .Include(x => x.UserAnsweredQuestions).Include(x => x.PracticeQuestionAnswers).Include(x => x.Practice)
                 .FirstOrDefault() ?? throw new NotFoundException();
 
         if (practiceQuestion.UserAnsweredQuestions.Select(x => x.UserId).Contains(CurrentUserId))
@@ -85,7 +86,7 @@ public class StudentPracticeService : ServiceBase<StudentPracticeService>, IStud
 
         var newPracticeQuestionAnswer = new PracticeQuestionAnswer
             { PracticeQuestionId = model.PracticeQuestionId, Description = model.Description, UserId = CurrentUserId };
-      
+
         try
         {
             practiceQuestion.PracticeQuestionAnswers.Add(newPracticeQuestionAnswer);
@@ -103,25 +104,17 @@ public class StudentPracticeService : ServiceBase<StudentPracticeService>, IStud
         }
     }
 
-    public Task<string> GetQuestionImage(string fileName)
+    public Task<ResponseGetFileViewModel> GetQuestionImage(string fileName)
     {
         var practice =
             _practiceQuestionRepository.DeferredWhere(x => x.Practice != null && x.FileName == fileName)
                 .FirstOrDefault() ?? throw new NotFoundException();
 
-        var folderPath = _hostingEnvironment.ContentRootPath +
-                         _configuration.GetSection("File:ImageFilePracticeQuestions").Value;
-        var fullPath = Path.Combine(folderPath, practice.FileName);
-
-        return Task.FromResult(fullPath);
-    }
-
-    private string UploadFile(IFormFile file)
-    {
-        var fullFilePath = _uploader.UploadFile(file,
-            _hostingEnvironment.ContentRootPath + _configuration.GetSection("File:FilePracticeQuestionAnswers").Value,
-            "").Result;
-
-        return fullFilePath;
+        return Task.FromResult(new ResponseGetFileViewModel
+        {
+            FileName = practice.FileName,
+            MemoryStream = _uploader.Get(_configuration.GetSection("File:FilePracticeQuestions").Value,
+                practice.FileName, null).Result
+        });
     }
 }

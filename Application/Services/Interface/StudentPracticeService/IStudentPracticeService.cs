@@ -1,5 +1,6 @@
 ﻿using Application.ViewModels.Practice;
 using Application.ViewModels.PracticeQuestion;
+using Application.ViewModels.Public;
 
 namespace Application.Services.Interface.StudentPracticeService;
 
@@ -11,5 +12,5 @@ public interface IStudentPracticeService
 
     Task<bool> AnswerPracticeQuestion(RequestAnswerPracticeQuestionViewModel model);
     
-    Task<string> GetQuestionImage(string fileName);
+    Task<ResponseGetFileViewModel> GetQuestionImage(string fileName);
 }

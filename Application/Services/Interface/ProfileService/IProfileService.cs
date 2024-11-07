@@ -1,5 +1,6 @@
 ﻿using Application.ViewModels.Profile;
 using Application.ViewModels.Profile.ChangePassword;
+using Application.ViewModels.Public;
 
 namespace Application.Services.Interface.ProfileService;
 
@@ -12,5 +13,5 @@ public interface IProfileService
 
     Task<bool> ChangePassword(ChangePasswordViewModel model);
     
-    Task<string> GetUserFileImage(string fileName);
+    Task<ResponseGetFileViewModel> GetUserFileImage(string fileName);
 }
