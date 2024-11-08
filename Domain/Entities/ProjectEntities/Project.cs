@@ -14,6 +14,10 @@ public class Project  :EntityBaseKeyInteger
     public string Title { get; set; }
 
     public string? Description { get; set; }
+    
+    public string FileName { get; set; }
+    
+    public string FileExtension { get; set; }
 
     public DateTime StartDate { get; set; }
 

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Persistence.Contexts;
 
@@ -11,9 +12,11 @@ using Persistence.Contexts;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDataBaseContext))]
-    partial class ApplicationDataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20241108134741_Project entities added")]
+    partial class Projectentitiesadded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -361,14 +364,6 @@ namespace Persistence.Migrations
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("FileExtension")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("InsertByUserId")
                         .HasColumnType("nvarchar(max)");
 
@@ -538,21 +533,21 @@ namespace Persistence.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "aa4ebc4c-5daf-4539-b0d2-c022d3b9485e",
+                            ConcurrencyStamp = "0298bdd5-7863-4a3f-b296-833a6fa6c7cc",
                             Name = "Admin",
                             NormalizedName = "Admin"
                         },
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "334b4f9b-f5e2-4399-9c84-ba0916c9442e",
+                            ConcurrencyStamp = "5fc1f5d7-3be8-4505-a204-5bbe69699673",
                             Name = "Teacher",
                             NormalizedName = "Teacher"
                         },
                         new
                         {
                             Id = 3,
-                            ConcurrencyStamp = "97bd155b-baad-4c80-a422-904b7b583d40",
+                            ConcurrencyStamp = "3d0fd71c-892b-4b6e-a394-aa8d906e8e69",
                             Name = "Student",
                             NormalizedName = "Student"
                         });

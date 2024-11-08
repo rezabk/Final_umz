@@ -12,6 +12,7 @@ using Application.Services.Concrete.StudentService;
 using Application.Services.Concrete.TeacherService.TeacherClassService;
 using Application.Services.Concrete.TeacherService.TeacherPracticeQuestionService;
 using Application.Services.Concrete.TeacherService.TeacherPracticeService;
+using Application.Services.Concrete.TeacherService.TeacherProjectService;
 using Application.Services.Interface.AccountService;
 using Application.Services.Interface.AccountService.AccountValidatorService;
 using Application.Services.Interface.Admin.AdminRoleService;
@@ -24,6 +25,7 @@ using Application.Services.Interface.StudentService;
 using Application.Services.Interface.TeacherService.TeacherClassService;
 using Application.Services.Interface.TeacherService.TeacherPracticeQuestionService;
 using Application.Services.Interface.TeacherService.TeacherPracticeService;
+using Application.Services.Interface.TeacherService.TeacherProjectService;
 using Application.Services.Interface.Utils;
 using Application.Utils;
 using Application.ViewModels.Account;
@@ -42,6 +44,8 @@ using Application.ViewModels.PracticeQuestion;
 using Application.ViewModels.PracticeQuestion.FluentValidation;
 using Application.ViewModels.Profile.ChangePassword;
 using Application.ViewModels.Profile.ChangePassword.FluentValidation;
+using Application.ViewModels.Project;
+using Application.ViewModels.Project.FluentValidation;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -62,6 +66,7 @@ public static class ServiceRegistration
         services.AddScoped<IStudentService, StudentService>();
         services.AddScoped<IStudentPracticeService, StudentPracticeService>();
         services.AddScoped<ITeacherPracticeQuestionService, TeacherPracticeQuestionService>();
+        services.AddScoped<ITeacherProjectService, TeacherProjectService>();
         
 
         services.AddScoped<ITokenService, TokenService>();
@@ -89,6 +94,7 @@ public static class ServiceRegistration
         services.AddTransient<IValidator<RequestSetPracticeViewModel>, RequestSetPracticeValidator>();
         services.AddTransient<IValidator<RequestSetQuestionViewModel>, SetQuestionValidator>();
         services.AddTransient<IValidator<RequestAnswerPracticeQuestionViewModel>, AnswerPracticeQuestionValidator>();
+        services.AddTransient<IValidator<RequestSetProjectViewModel>, RequestSetProjectValidator>();
         
         return services;
     }

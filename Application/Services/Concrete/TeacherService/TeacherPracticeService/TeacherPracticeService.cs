@@ -47,8 +47,37 @@ public class TeacherPracticeService : ServiceBase<TeacherPracticeService>, ITeac
         }).ToList());
     }
 
+   
     public Task<int> SetPractice(RequestSetPracticeViewModel model)
     {
+        #region UPDATE PRACTICE
+
+        if (model.PracticeId > 0)
+        {
+            var practice = _practiceRepository.DeferredWhere(x => x.Id == model.PracticeId).FirstOrDefault() ??
+                           throw new NotFoundException();
+            practice.Description = model.Description;
+            practice.Title = model.Title;
+            practice.StartDate = model.StartDate.ConvertJalaliToMiladi();
+            practice.EndDate = model.EndDate?.ConvertJalaliToMiladi();
+
+            try
+            {
+                _practiceRepository.UpdateAsync(practice, true);
+                _logger.LogUpdateSuccess("Practice", practice.Id);
+                return Task.FromResult(practice.Id);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogUpdateError(exception, "Practice", practice.Id);
+                throw exception ?? throw new ErrorException();
+            }
+        }
+
+        #endregion
+
+        #region ADD PRACTICE
+
         var newPractice = new Practice
         {
             ClassId = model.ClassId,
@@ -69,6 +98,9 @@ public class TeacherPracticeService : ServiceBase<TeacherPracticeService>, ITeac
             _logger.LogAddError(exception, "Practice");
             throw exception ?? throw new ErrorException();
         }
+
+        #endregion
+       
     }
 
     public Task<bool> RemovePractice(int practiceId)
