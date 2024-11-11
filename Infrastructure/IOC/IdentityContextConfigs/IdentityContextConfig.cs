@@ -30,7 +30,7 @@ public static class IdentityContextConfig
     {
         services.AddDbContext<TContext>(options =>
         {
-            options.UseSqlServer(
+            options.UseNpgsql(
                 ConnectionConfigurationKey,
                 serverDbContextOptionsBuilder =>
                 {

@@ -39,7 +39,7 @@ public class AccountValidatorService : IAccountValidatorService
 
         var entity = await _phoneNumberCodeRepository.FirstOrDefaultItemAsync(x =>
             x.PhoneNumber == model.PhoneNumber && x.GeneratedCode == model.Code && x.IsUsed == false);
-        if (entity.ExpireDate < DateTime.Now)
+        if (entity.ExpireDate < DateTime.UtcNow)
             throw new FormValidationException(MessageId.CodeExpired);
 
         await _phoneNumberCodeRepository.UpdateAsync(entity, entity.IsUsed = true);

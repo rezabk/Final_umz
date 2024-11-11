@@ -31,7 +31,7 @@ public class TeacherPracticeService : ServiceBase<TeacherPracticeService>, ITeac
     public Task<List<ShowPracticeByClassId>> GetAllPracticeByClassId(int classId)
     {
         var practices = _practiceRepository.DeferredWhere(x =>
-                x.Class != null && x.ClassId == classId && x.Class.TeacherId == CurrentUserId)
+                x.Class != null && x.ClassId == classId && x.Class.Teacher.UserId == CurrentUserId)
             .Include(x => x.Class)
             .Include(x => x.PracticeQuestions);
 
@@ -47,8 +47,37 @@ public class TeacherPracticeService : ServiceBase<TeacherPracticeService>, ITeac
         }).ToList());
     }
 
+
     public Task<int> SetPractice(RequestSetPracticeViewModel model)
     {
+        #region UPDATE PRACTICE
+
+        if (model.PracticeId > 0)
+        {
+            var practice = _practiceRepository.DeferredWhere(x => x.Id == model.PracticeId).FirstOrDefault() ??
+                           throw new NotFoundException();
+            practice.Description = model.Description;
+            practice.Title = model.Title;
+            practice.StartDate = model.StartDate.ConvertJalaliToMiladi();
+            practice.EndDate = model.EndDate?.ConvertJalaliToMiladi();
+
+            try
+            {
+                _practiceRepository.UpdateAsync(practice, true);
+                _logger.LogUpdateSuccess("Practice", practice.Id);
+                return Task.FromResult(practice.Id);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogUpdateError(exception, "Practice", practice.Id);
+                throw exception ?? throw new ErrorException();
+            }
+        }
+
+        #endregion
+
+        #region ADD PRACTICE
+
         var newPractice = new Practice
         {
             ClassId = model.ClassId,
@@ -60,7 +89,7 @@ public class TeacherPracticeService : ServiceBase<TeacherPracticeService>, ITeac
 
         try
         {
-            _practiceRepository.AddAsync(newPractice);
+            _practiceRepository.AddAsync(newPractice, true);
             _logger.LogAddSuccess("Practice", newPractice.Id);
             return Task.FromResult(newPractice.Id);
         }
@@ -69,16 +98,20 @@ public class TeacherPracticeService : ServiceBase<TeacherPracticeService>, ITeac
             _logger.LogAddError(exception, "Practice");
             throw exception ?? throw new ErrorException();
         }
+
+        #endregion
     }
 
     public Task<bool> RemovePractice(int practiceId)
     {
         var practice = _practiceRepository.DeferredWhere(x => x.Class != null && x.Id == practiceId)
                            .Include(x => x.Class)
+                           .ThenInclude(x => x.Teacher)
                            .FirstOrDefault() ??
                        throw new NotFoundException();
 
-        if (practice.Class.TeacherId != CurrentUserId) throw new FormValidationException(MessageId.AccessToClassDenied);
+        if (practice.Class.Teacher.UserId != CurrentUserId)
+            throw new FormValidationException(MessageId.AccessToClassDenied);
 
         try
         {

@@ -1,9 +1,10 @@
-﻿namespace Application.ViewModels.Practice;
+﻿using Microsoft.AspNetCore.Http;
 
-public class RequestSetPracticeViewModel
+namespace Application.ViewModels.Project;
+
+public class RequestSetProjectViewModel
 {
-    public int PracticeId { get; set; }
-    
+    public int ProjectId { get; set; }
     public int ClassId { get; set; }
     
     public string Title { get; set; }
@@ -13,4 +14,6 @@ public class RequestSetPracticeViewModel
     public string StartDate { get; set; }
 
     public string? EndDate { get; set; }
+    
+    public IFormFile File { get; set; }
 }

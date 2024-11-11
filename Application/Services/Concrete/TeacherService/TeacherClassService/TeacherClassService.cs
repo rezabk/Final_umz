@@ -31,7 +31,8 @@ public class TeacherClassService : ServiceBase<TeacherClassService>, ITeacherCla
 
     public Task<List<SelectOptionViewModel>> GetAllClass()
     {
-        var teacherClasses = _classRepository.DeferredWhere(x => x.Teacher != null && x.TeacherId == CurrentUserId);
+        var teacherClasses =
+            _classRepository.DeferredWhere(x => x.Teacher != null && x.Teacher.UserId == CurrentUserId);
 
         return Task.FromResult(teacherClasses.Select(x => new SelectOptionViewModel
         {
@@ -42,7 +43,7 @@ public class TeacherClassService : ServiceBase<TeacherClassService>, ITeacherCla
 
     public Task<ResponseGetAllClassByFilterViewModel> GetAllClassByFilter(RequestGetAllClassByFilterViewModel model)
     {
-        var teacherClasses = _classRepository.DeferredWhere(x => x.Teacher != null && x.TeacherId == CurrentUserId)
+        var teacherClasses = _classRepository.DeferredWhere(x => x.Teacher != null && x.Teacher.UserId == CurrentUserId)
             .Include(x => x.Students).AsQueryable();
 
         teacherClasses = FilterTeacherClasses(teacherClasses, model);
@@ -92,7 +93,10 @@ public class TeacherClassService : ServiceBase<TeacherClassService>, ITeacherCla
     {
         var classRoom =
             _classRepository.DeferredWhere(x => x.Id == classId && x.Teacher.UserId == CurrentUserId)
+                .Include(x => x.Teacher)
                 .FirstOrDefault() ?? throw new NotFoundException();
+
+        if (classRoom.Teacher.UserId != CurrentUserId) throw new FormValidationException(MessageId.AccessToClassDenied);
 
         try
         {
@@ -136,8 +140,11 @@ public class TeacherClassService : ServiceBase<TeacherClassService>, ITeacherCla
 
     private Task<int> UpdateClass(RequestSetClassViewModel model)
     {
-        var classRoom = _classRepository.DeferredWhere(x => x.Id == model.ClassId).FirstOrDefault() ??
+        var classRoom = _classRepository.DeferredWhere(x => x.Id == model.ClassId).Include(x => x.Teacher)
+                            .FirstOrDefault() ??
                         throw new NotFoundException();
+
+        if (classRoom.Teacher.UserId != CurrentUserId) throw new FormValidationException(MessageId.AccessToClassDenied);
 
         classRoom.TotalAllowedStudent = model.TotalAllowedStudent;
         classRoom.UniversityName = model.UniversityName;
