@@ -37,7 +37,8 @@ public class TeacherPracticeQuestionService : ServiceBase<TeacherPracticeQuestio
     public Task<List<ShowPracticeQuestionViewModel>> GetAllPracticeQuestionByPracticeId(int practiceId)
     {
         var practiceQuestions =
-            _practiceQuestionRepository.DeferredWhere(x => x.Practice != null && x.PracticeId == practiceId);
+            _practiceQuestionRepository.DeferredWhere(x =>
+                x.Practice != null && x.PracticeId == practiceId && x.Practice.Class.Teacher.UserId == CurrentUserId);
 
         return Task.FromResult(practiceQuestions.Select(x => new ShowPracticeQuestionViewModel
         {
@@ -57,7 +58,7 @@ public class TeacherPracticeQuestionService : ServiceBase<TeacherPracticeQuestio
             var practiceQuestion = _practiceQuestionRepository
                                        .DeferredWhere(x =>
                                            x.Practice != null &&
-                                           x.Practice.Class.TeacherId == CurrentUserId &&
+                                           x.Practice.Class.Teacher.UserId == CurrentUserId &&
                                            x.Id == model.Id && x.PracticeId == model.PracticeId)
                                        .FirstOrDefault() ??
                                    throw new NotFoundException();
@@ -124,7 +125,7 @@ public class TeacherPracticeQuestionService : ServiceBase<TeacherPracticeQuestio
     public Task<bool> RemoveQuestion(int practiceQuestionId)
     {
         var question = _practiceQuestionRepository.DeferredWhere(x =>
-                x.Practice != null && x.Id == practiceQuestionId && x.Practice.Class.TeacherId == CurrentUserId)
+                x.Practice != null && x.Id == practiceQuestionId && x.Practice.Class.Teacher.UserId == CurrentUserId)
             .FirstOrDefault() ?? throw new NotFoundException();
 
         try

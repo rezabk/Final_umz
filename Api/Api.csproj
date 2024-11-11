@@ -24,7 +24,6 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
-      <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.8" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.8">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -34,6 +33,8 @@
       <PackageReference Include="MigraDocCore.DocumentObjectModel" Version="1.3.65" />
       <PackageReference Include="MigraDocCore.Rendering" Version="1.3.65" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+      <PackageReference Include="Npgsql" Version="8.0.5" />
+      <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.8" />
       <PackageReference Include="NuGet.Packaging" Version="6.11.1" />
       <PackageReference Include="PdfSharpCore" Version="1.3.65" />
       <PackageReference Include="SixLabors.Fonts" Version="2.0.6" />

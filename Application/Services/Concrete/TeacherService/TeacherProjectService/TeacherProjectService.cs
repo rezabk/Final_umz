@@ -4,11 +4,13 @@ using Application.Services.Base;
 using Application.Services.Interface.Logger;
 using Application.Services.Interface.TeacherService.TeacherProjectService;
 using Application.ViewModels.Project;
+using Application.ViewModels.Public;
 using Common;
 using Common.ExceptionType.CustomException;
 using Domain.Entities.ProjectEntities;
 using Domain.Entities.TeacherEntities;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 namespace Application.Services.Concrete.TeacherService.TeacherProjectService;
@@ -30,6 +32,25 @@ public class TeacherProjectService : ServiceBase<TeacherProjectService>, ITeache
         _logger = logger;
         _uploader = uploader;
         _configuration = configuration;
+    }
+
+    public Task<List<ShowProjectViewModel>> GetAllProjectByClassId(int classId)
+    {
+        var projects =
+            _projectRepository.DeferredWhere(x => x.ClassId == classId && x.Class.Teacher.UserId == CurrentUserId)
+                .Include(x => x.Class);
+
+        return Task.FromResult(projects.Select(x => new ShowProjectViewModel
+        {
+            Id = x.Id,
+            Title = x.Title,
+            StartDate = x.StartDate.ConvertMiladiToJalali(),
+            EndDate = x.EndDate.ConvertMiladiToJalali(),
+            Description = x.Description,
+            FileName = x.FileName,
+            ClassId = x.ClassId,
+            ClassTitle = x.Class.Title
+        }).ToList());
     }
 
     public Task<int> SetProject(RequestSetProjectViewModel model)
@@ -94,6 +115,38 @@ public class TeacherProjectService : ServiceBase<TeacherProjectService>, ITeache
         }
 
         #endregion
+    }
+
+    public Task<bool> RemoveProject(int projectId)
+    {
+        var project =
+            _projectRepository.DeferredWhere(x => x.Id == projectId && x.Class.Teacher.UserId == CurrentUserId)
+                .FirstOrDefault() ?? throw new NotFoundException();
+        try
+        {
+            _projectRepository.RemoveAsync(project, true);
+            _logger.LogRemoveSuccess("Project", project.Id);
+            return Task.FromResult(true);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogRemoveError(exception, "Project", project.Id);
+            throw exception ?? throw new ErrorException();
+        }
+    }
+
+    public Task<ResponseGetFileViewModel> GetProjectFile(string fileName)
+    {
+        var project =
+            _projectRepository.DeferredWhere(x => x.FileName == fileName && x.Class.Teacher.UserId == CurrentUserId)
+                .FirstOrDefault() ?? throw new NotFoundException();
+
+        return Task.FromResult(new ResponseGetFileViewModel
+        {
+            FileName = project.FileName,
+            MemoryStream = _uploader.Get(_configuration.GetSection("File:FileProject").Value,
+                project.FileName, null).Result
+        });
     }
 
 

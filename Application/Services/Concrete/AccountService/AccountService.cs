@@ -88,6 +88,7 @@ public class AccountService : ServiceBase<AccountService>, IAccountService
         }
         catch (Exception exception)
         {
+              await _userManager.DeleteAsync(newUser);
             _logger.LogAddError(exception, "User");
             throw new ErrorException();
         }

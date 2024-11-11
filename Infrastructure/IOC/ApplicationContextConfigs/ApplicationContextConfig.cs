@@ -15,7 +15,7 @@ public static class ApplicationContextConfigs
     {
         services.AddDbContext<TContext>(option =>
         {
-            option.UseSqlServer(
+            option.UseNpgsql(
                 ConnectionConfigurationKey,
                 serverDbContextOptionsBuilder =>
                 {

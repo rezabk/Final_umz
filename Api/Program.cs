@@ -85,8 +85,14 @@ builder.Services.AddAuthentication(options =>
 services.AddEndpointsApiExplorer();
 services.AddSwaggerGen();
 
-services.AddEntityFrameworkSqlServer().AddDbContext<ApplicationDataBaseContext>(option =>
-    option.UseSqlServer(builder.Configuration.GetConnectionString("Application")));
+// services.AddEntityFrameworkSqlServer().AddDbContext<ApplicationDataBaseContext>(option =>
+//     option.UseSqlServer(builder.Configuration.GetConnectionString("Application")));
+
+// Using PostgreSQL configuration
+services.AddEntityFrameworkNpgsql().AddDbContext<ApplicationDataBaseContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("Application")));
+
+
 
 builder.Services.AddSwaggerGen(c =>
 {

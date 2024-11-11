@@ -53,18 +53,24 @@ public static class CommonExtensions
             var year = yearGroup.SafeInt(0);
             var month = match.Groups["Month"].SafeInt(0);
             var day = match.Groups["Day"].SafeInt(0);
+
+            DateTime result;
             try
             {
-                return calendar.ToDateTime(year, month, day, timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds,
+                result = calendar.ToDateTime(year, month, day, timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds,
                     timeSpan.Milliseconds);
             }
             catch (Exception exDate)
             {
                 if (exDate.Message == "Day must be between 1 and 29 for month 12.\r\nParameter name: day")
-                    return calendar.ToDateTime(year, month, day - 1, timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds,
-                        timeSpan.Milliseconds);
-                throw new Exception("InvalidPersianDate");
+                    result = calendar.ToDateTime(year, month, day - 1, timeSpan.Hours, timeSpan.Minutes,
+                        timeSpan.Seconds, timeSpan.Milliseconds);
+                else
+                    throw new Exception("InvalidPersianDate");
             }
+
+            // Explicitly convert to UTC
+            return DateTime.SpecifyKind(result, DateTimeKind.Unspecified).ToUniversalTime();
         }
         catch (Exception)
         {
@@ -98,18 +104,24 @@ public static class CommonExtensions
             var month = match.Groups["Month"].SafeInt(0);
             var day = match.Groups["Day"].SafeInt(0);
             var calendar = new PersianCalendar();
+
+            DateTime result;
             try
             {
-                return calendar.ToDateTime(year, month, day, timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds,
+                result = calendar.ToDateTime(year, month, day, timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds,
                     timeSpan.Milliseconds);
             }
             catch (Exception exDate)
             {
                 if (exDate.Message == "Day must be between 1 and 29 for month 12.\r\nParameter name: day")
-                    return calendar.ToDateTime(year, month, day - 1, timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds,
-                        timeSpan.Milliseconds);
-                return DateTime.MinValue;
+                    result = calendar.ToDateTime(year, month, day - 1, timeSpan.Hours, timeSpan.Minutes,
+                        timeSpan.Seconds, timeSpan.Milliseconds);
+                else
+                    throw new Exception("InvalidPersianDate");
             }
+
+            // Explicitly convert to UTC
+            return DateTime.SpecifyKind(result, DateTimeKind.Unspecified).ToUniversalTime();
         }
         catch (Exception)
         {
@@ -269,7 +281,7 @@ public static class CommonExtensions
             return ConvertJalaliToMiladi(newYear + "/" + newMonth + "/" + parts[2]);
         }
 
-        return DateTime.Now;
+        return DateTime.UtcNow;
     }
 
     public static DateTime SafeMinDate(this DateTime date)
