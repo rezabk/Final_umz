@@ -26,4 +26,6 @@ public class ApplicationUser : IdentityUser<int>
     public virtual ICollection<PracticeQuestionAnswer> PracticeQuestionAnswers { get; set; }
     
     public virtual ICollection<UserAnsweredQuestion> UserAnsweredQuestions { get; set; }
+    
+    public virtual ICollection<TeacherRequest> TeacherRequests { get; set; }
 }
