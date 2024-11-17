@@ -4,7 +4,7 @@ using Common.Enums.RolesManagment;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Api.Controllers.Area.Teacher.PracticeQuestionStudentAnswer;
+namespace Api.Controllers.Area.Teacher.TeacherPracticeStudentAnswer;
 
 [Area("Teacher")]
 [Authorize(Roles = nameof(UserRolesEnum.Teacher))]
@@ -18,6 +18,7 @@ public class TeacherPracticeStudentAnswerController : BaseController
     {
         _teacherPracticeStudentAnswerService = teacherPracticeStudentAnswerService;
     }
+
     [HttpGet("[action]")]
     public async Task<List<UserAnsweredList>> GetAllUserAnswered(int practiceId)
     {
@@ -28,5 +29,11 @@ public class TeacherPracticeStudentAnswerController : BaseController
     public async Task<ShowPracticeAnswer> GetAllPracticeAnswerByUserId(int practiceId, int userId)
     {
         return await _teacherPracticeStudentAnswerService.GetAllPracticeAnswerByUserId(practiceId, userId);
+    }
+
+    [HttpPost("[action]")]
+    public async Task<bool> ScorePracticeQuestionAnswer(int practiceQuestionAnswerId, double score)
+    {
+        return await _teacherPracticeStudentAnswerService.ScorePracticeQuestionAnswer(practiceQuestionAnswerId, score);
     }
 }

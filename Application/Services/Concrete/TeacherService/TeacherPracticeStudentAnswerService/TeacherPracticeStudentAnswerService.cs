@@ -1,5 +1,6 @@
 ﻿using Application.IRepositories;
 using Application.Services.Base;
+using Application.Services.Interface.Logger;
 using Application.Services.Interface.TeacherService.TeacherPracticeStudentAnswerService;
 using Application.ViewModels.Practice;
 using Common.ExceptionType.CustomException;
@@ -16,15 +17,20 @@ public class TeacherPracticeStudentAnswerService : ServiceBase<TeacherPracticeSt
 {
     private readonly IRepository<Practice> _practiceRepository;
     private readonly IRepository<PracticeQuestionAnswer> _practiceQuestionAnswerRepository;
+    private readonly IRepository<PracticeQuestion> _practiceQuestionRepository;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly ICustomLoggerService<TeacherPracticeStudentAnswerService> _logger;
 
     public TeacherPracticeStudentAnswerService(IUnitOfWork unitOfWork, IHttpContextAccessor contextAccessor,
-        UserManager<ApplicationUser> userManager) : base(
+        UserManager<ApplicationUser> userManager,
+        ICustomLoggerService<TeacherPracticeStudentAnswerService> logger) : base(
         contextAccessor)
     {
         _practiceRepository = unitOfWork.GetRepository<Practice>();
         _practiceQuestionAnswerRepository = unitOfWork.GetRepository<PracticeQuestionAnswer>();
+        _practiceQuestionRepository = unitOfWork.GetRepository<PracticeQuestion>();
         _userManager = userManager;
+        _logger = logger;
     }
 
 
@@ -76,5 +82,29 @@ public class TeacherPracticeStudentAnswerService : ServiceBase<TeacherPracticeSt
                 UserId = x.UserId,
                 FullName = x.User.FirstName + " " + x.User.LastName
             }).ToList());
+    }
+
+    public Task<bool> ScorePracticeQuestionAnswer(int practiceQuestionAnswerId, double score)
+    {
+        var practiceQuestionAnswer =
+            _practiceQuestionAnswerRepository
+                .DeferredWhere(x =>
+                    x.Id == practiceQuestionAnswerId &&
+                    x.PracticeQuestion.Practice.Class.Teacher.UserId == CurrentUserId)
+                .FirstOrDefault() ?? throw new NotFoundException();
+
+        practiceQuestionAnswer.Score = score;
+
+        try
+        {
+            _practiceQuestionAnswerRepository.UpdateAsync(practiceQuestionAnswer, true);
+            _logger.LogUpdateSuccess("PracticeQuestionAnswer", practiceQuestionAnswer.Id);
+            return Task.FromResult(true);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogUpdateError(exception, "PracticeQuestionAnswer", practiceQuestionAnswer.Id);
+            throw exception ?? throw new NotFoundException();
+        }
     }
 }
