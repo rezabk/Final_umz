@@ -6,6 +6,7 @@ using Common.Enums;
 using Common.ExceptionType.CustomException;
 using Domain.Entities;
 using Domain.Entities.UserAgg;
+using Domain.Entities.UserEntities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using StapSSO.Enums;
@@ -39,7 +40,7 @@ public class AccountValidatorService : IAccountValidatorService
 
         var entity = await _phoneNumberCodeRepository.FirstOrDefaultItemAsync(x =>
             x.PhoneNumber == model.PhoneNumber && x.GeneratedCode == model.Code && x.IsUsed == false);
-        if (entity.ExpireDate < DateTime.UtcNow)
+        if (entity.ExpireDate < DateTime.Now)
             throw new FormValidationException(MessageId.CodeExpired);
 
         await _phoneNumberCodeRepository.UpdateAsync(entity, entity.IsUsed = true);

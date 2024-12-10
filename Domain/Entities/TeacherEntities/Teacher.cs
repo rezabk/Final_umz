@@ -3,6 +3,7 @@ using Domain.Attributes;
 using Domain.Entities.BaseAgg;
 using Domain.Entities.ClassEntities;
 using Domain.Entities.UserAgg;
+using Domain.Entities.UserEntities;
 
 namespace Domain.Entities.TeacherEntities;
 

@@ -12,6 +12,7 @@ using Common.ExceptionType.CustomException;
 using Domain.Entities.ClassEntities;
 using Domain.Entities.TeacherEntities;
 using Domain.Entities.UserAgg;
+using Domain.Entities.UserEntities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

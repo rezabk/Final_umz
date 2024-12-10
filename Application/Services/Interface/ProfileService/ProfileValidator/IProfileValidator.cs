@@ -2,6 +2,7 @@
 using Application.ViewModels.Account;
 using Application.ViewModels.Profile;
 using Domain.Entities.UserAgg;
+using Domain.Entities.UserEntities;
 
 namespace Application.Services.Interface.ProfileService.ProfileValidator;
 

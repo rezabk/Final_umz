@@ -286,7 +286,7 @@ public static class CommonExtensions
             return ConvertJalaliToMiladi(newYear + "/" + newMonth + "/" + parts[2]);
         }
 
-        return DateTime.UtcNow;
+        return DateTime.Now;
     }
 
     public static DateTime SafeMinDate(this DateTime date)

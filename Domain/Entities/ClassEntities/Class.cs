@@ -5,6 +5,7 @@ using Domain.Entities.BaseAgg;
 using Domain.Entities.PracticeEntities;
 using Domain.Entities.TeacherEntities;
 using Domain.Entities.UserAgg;
+using Domain.Entities.UserEntities;
 
 namespace Domain.Entities.ClassEntities;
 

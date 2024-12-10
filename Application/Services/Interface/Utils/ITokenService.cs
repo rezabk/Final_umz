@@ -1,4 +1,5 @@
 using Domain.Entities.UserAgg;
+using Domain.Entities.UserEntities;
 
 namespace Application.Services.Interface.Utils;
 

@@ -6,6 +6,7 @@ using Application.ViewModels.Practice;
 using Common.ExceptionType.CustomException;
 using Domain.Entities.PracticeEntities;
 using Domain.Entities.UserAgg;
+using Domain.Entities.UserEntities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +18,6 @@ public class TeacherPracticeStudentAnswerService : ServiceBase<TeacherPracticeSt
 {
     private readonly IRepository<Practice> _practiceRepository;
     private readonly IRepository<PracticeQuestionAnswer> _practiceQuestionAnswerRepository;
-    private readonly IRepository<PracticeQuestion> _practiceQuestionRepository;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ICustomLoggerService<TeacherPracticeStudentAnswerService> _logger;
 
@@ -28,7 +28,6 @@ public class TeacherPracticeStudentAnswerService : ServiceBase<TeacherPracticeSt
     {
         _practiceRepository = unitOfWork.GetRepository<Practice>();
         _practiceQuestionAnswerRepository = unitOfWork.GetRepository<PracticeQuestionAnswer>();
-        _practiceQuestionRepository = unitOfWork.GetRepository<PracticeQuestion>();
         _userManager = userManager;
         _logger = logger;
     }
