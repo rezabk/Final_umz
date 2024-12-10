@@ -26,58 +26,62 @@ public static class CommonExtensions
     public static DateTime MinDate => new(1907, 1, 1);
     public static DateTime MaxDate => new(2060, 1, 1);
 
-  public static DateTime ConvertJalaliToMiladi(this string persianDate)
-{
-    var timeSpan = new TimeSpan(0, 0, 0, 0);
-    var calendar = new PersianCalendar();
-    try
+    public static DateTime ConvertJalaliToMiladi(this string persianDate)
     {
-        persianDate = persianDate.PersianNumberToLatin();
-
-        if (string.IsNullOrEmpty(persianDate)) return DateTime.MinValue;
-        persianDate = persianDate.Trim().ToEnglishNumbers();
-        persianDate = persianDate.Replace("-", "/");
-        persianDate = persianDate.Replace(",", "/");
-        persianDate = persianDate.Replace("؍", "/");
-        persianDate = persianDate.Replace(".", "/");
-        var s = persianDate.Split(' ');
-        if (s.Length == 2) timeSpan = TimeSpan.Parse(s[1]);
-        var date = s[0];
-
-        var match = Regex.Match(date,
-            @"(?'Year'(^[1-4]\d{3})|(\d{2}))[/-:](((?'Month'0?[1-6])\/((?'Day'(3[0-1])|([1-2][0-9])|(0?[1-9])))|((?'Month'1[0-2]|(0?[7-9]))\/(?'Day'30|([1-2][0-9])|(0?[1-9])))))$");
-        if (!match.Success) throw new Exception("InvalidPersianDate");
-        var yearGroup = match.Groups["Year"].ToString();
-        if (yearGroup.Length == 2) yearGroup = $"13{yearGroup}";
-        var year = yearGroup.SafeInt(0);
-        var month = match.Groups["Month"].SafeInt(0);
-        var day = match.Groups["Day"].SafeInt(0);
-
-        DateTime result;
+        var timeSpan = new TimeSpan(0, 0, 0, 0);
+        var calendar = new PersianCalendar();
         try
         {
-            result = calendar.ToDateTime(year, month, day, timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds,
-                timeSpan.Milliseconds);
+            persianDate = persianDate.PersianNumberToLatin();
+
+            if (string.IsNullOrEmpty(persianDate)) return DateTime.MinValue;
+            persianDate = persianDate.Trim().ToEnglishNumbers();
+            persianDate = persianDate.Replace("-", "/");
+            persianDate = persianDate.Replace(",", "/");
+            persianDate = persianDate.Replace("؍", "/");
+            persianDate = persianDate.Replace(".", "/");
+            persianDate = persianDate.Replace("-", "/");
+            var s = persianDate.Split(' ');
+            if (s.Length == 2) timeSpan = TimeSpan.Parse(s[1]);
+            var date = s[0];
+
+            var match = Regex.Match(date,
+                @"(?'Year'(^[1-4]\d{3})|(\d{2}))[/-:](((?'Month'0?[1-6])\/((?'Day'(3[0-1])|([1-2][0-9])|(0?[1-9])))|((?'Month'1[0-2]|(0?[7-9]))\/(?'Day'30|([1-2][0-9])|(0?[1-9])))))$");
+            if (!match.Success) throw new Exception("InvalidPersianDate");
+            var yearGroup = match.Groups["Year"].ToString();
+            if (yearGroup.Length == 2) yearGroup = $"13{yearGroup}";
+            var year = yearGroup.SafeInt(0);
+            var month = match.Groups["Month"].SafeInt(0);
+            var day = match.Groups["Day"].SafeInt(0);
+
+            DateTime result;
+            try
+            {
+                result = calendar.ToDateTime(year, month, day, timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds,
+                    timeSpan.Milliseconds);
+            }
+            catch (Exception exDate)
+            {
+                if (exDate.Message == "Day must be between 1 and 29 for month 12.\r\nParameter name: day")
+                    result = calendar.ToDateTime(year, month, day - 1, timeSpan.Hours, timeSpan.Minutes,
+                        timeSpan.Seconds, timeSpan.Milliseconds);
+                else
+                    throw new Exception("InvalidPersianDate");
+            }
+
+
+            // Step 1: Treat as Local and Convert to UTC
+            var utcDateTime = DateTime.SpecifyKind(result, DateTimeKind.Local).ToUniversalTime();
+
+            // Step 2: Adjust for Iran Standard Time (UTC+3:30)
+            var iranTimeOffset = new TimeSpan(3, 30, 0);
+            return utcDateTime.Add(iranTimeOffset);
         }
-        catch (Exception exDate)
+        catch (Exception)
         {
-            if (exDate.Message == "Day must be between 1 and 29 for month 12.\r\nParameter name: day")
-                result = calendar.ToDateTime(year, month, day - 1, timeSpan.Hours, timeSpan.Minutes,
-                    timeSpan.Seconds, timeSpan.Milliseconds);
-            else
-                throw new Exception("InvalidPersianDate");
+            throw new Exception("InvalidPersianDate");
         }
-
-        // Remove the incorrect conversion to UTC
-        // Ensure the result is treated as local time
-        return DateTime.SpecifyKind(result, DateTimeKind.Local);
     }
-    catch (Exception)
-    {
-        throw new Exception("InvalidPersianDate");
-    }
-}
-
 
     public static DateTime ConvertJalaliToMiladi(this string persianDate, string time)
     {
