@@ -87,5 +87,8 @@ public enum MessageId
     AlreadyAnsweredQuestion = -27,
 
     [Description("مهلت ارسال پاسخ تمرین به تمام رسیده")]
-    DeadlineReached = -28,
+    DeadlineReached = -28, 
+    
+    [Description("شما درخواست جدید دارید")]
+    OpenRequest = -29,
 }

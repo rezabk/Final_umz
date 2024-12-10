@@ -46,3 +46,12 @@ public class PracticeQuestionAnswerObject
     
     public double Score { get; set; }
 }
+
+public class UserAnsweredList
+{
+    public int UserId { get; set; }
+    
+    public string StudentId { get; set; }
+    
+    public string FullName { get; set; }
+}

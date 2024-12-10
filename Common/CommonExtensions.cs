@@ -69,8 +69,13 @@ public static class CommonExtensions
                     throw new Exception("InvalidPersianDate");
             }
 
-            // Explicitly convert to UTC
-            return DateTime.SpecifyKind(result, DateTimeKind.Unspecified).ToUniversalTime();
+
+            // Step 1: Treat as Local and Convert to UTC
+            var utcDateTime = DateTime.SpecifyKind(result, DateTimeKind.Local).ToUniversalTime();
+
+            // Step 2: Adjust for Iran Standard Time (UTC+3:30)
+            var iranTimeOffset = new TimeSpan(3, 30, 0);
+            return utcDateTime.Add(iranTimeOffset);
         }
         catch (Exception)
         {

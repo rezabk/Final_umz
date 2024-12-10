@@ -1,6 +1,7 @@
 ﻿using Application.Services.Interface.ProfileService;
 using Application.ViewModels.Profile;
 using Application.ViewModels.Profile.ChangePassword;
+using Application.ViewModels.Teacher;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,7 +22,8 @@ public class ProfileController : BaseController
     {
         return await _profileService.Profile();
     }
-
+    
+  
 
     [HttpPut("[action]")]
     public async Task<bool> ChangePassword([FromBody] ChangePasswordViewModel model)

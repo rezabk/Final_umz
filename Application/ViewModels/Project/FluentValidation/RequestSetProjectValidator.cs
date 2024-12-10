@@ -24,13 +24,13 @@ public class RequestSetProjectValidator : AbstractValidator<RequestSetProjectVie
 
 
         RuleFor(x => x.StartDate)
-            .NotEmpty().WithMessage("تاریخ شروع تخفیف باید وارد شود")
+            .NotEmpty().WithMessage("تاریخ شروع پروژه باید وارد شود")
             .Must(BeTodayOrLater)
-            .WithMessage("تاریخ شروع تخفیف نمیتواند قبل از امروز باشد");
+            .WithMessage("تاریخ شروع پروژه نمیتواند قبل از امروز باشد");
 
         RuleFor(x => x.EndDate)
             .Must(BeTodayOrLater)
-            .WithMessage("تاریخ پایان تخفیف نمیتواند قبل از امروز باشد");
+            .WithMessage("تاریخ پایان پروژه نمیتواند قبل از امروز باشد");
 
         RuleFor(x => x)
             .Custom((model, context) =>
@@ -42,7 +42,7 @@ public class RequestSetProjectValidator : AbstractValidator<RequestSetProjectVie
 
                     if (endDate < startDate)
                     {
-                        context.AddFailure("تاریخ پایان تخفیف نمی‌تواند قبل از تاریخ شروع تخفیف باشد.");
+                        context.AddFailure("تاریخ پایان پروژه نمی‌تواند قبل از تاریخ شروع پروژه باشد.");
                     }
                 }
             });

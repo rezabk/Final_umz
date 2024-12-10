@@ -7,6 +7,7 @@ using Application.Services.Interface.ProfileService.ProfileValidator;
 using Application.ViewModels.Profile;
 using Application.ViewModels.Profile.ChangePassword;
 using Application.ViewModels.Public;
+using Application.ViewModels.Teacher;
 using Common;
 using Common.Enums;
 using Common.ExceptionType.CustomException;
@@ -60,6 +61,7 @@ public class ProfileService : ServiceBase<ProfileService>, IProfileService
             File = user.ProfileImageFileName
         };
     }
+
 
     public async Task<bool> UpdateUser(UpdateUserViewModel model)
     {
