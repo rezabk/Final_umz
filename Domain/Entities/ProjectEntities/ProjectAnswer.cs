@@ -1,6 +1,7 @@
 ﻿using Domain.Attributes;
 using Domain.Entities.BaseAgg;
 using Domain.Entities.UserAgg;
+using Domain.Entities.UserEntities;
 
 namespace Domain.Entities.ProjectEntities;
 [EntityType]
@@ -18,4 +19,6 @@ public class ProjectAnswer  :EntityBaseKeyInteger
     public string FileName { get; set; }
     
     public string FileExtension { get; set; }
+    
+    public double Score { get; set; }
 }

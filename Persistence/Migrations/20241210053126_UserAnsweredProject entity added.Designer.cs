@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Persistence.Contexts;
@@ -11,9 +12,11 @@ using Persistence.Contexts;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDataBaseContext))]
-    partial class ApplicationDataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20241210053126_UserAnsweredProject entity added")]
+    partial class UserAnsweredProjectentityadded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -435,9 +438,6 @@ namespace Persistence.Migrations
                     b.Property<DateTime?>("RemoveTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<double>("Score")
-                        .HasColumnType("double precision");
-
                     b.Property<string>("UpdateByUserId")
                         .HasColumnType("text");
 
@@ -454,6 +454,50 @@ namespace Persistence.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("ProjectAnswer");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ProjectEntities.UserAnsweredProject", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("InsertByUserId")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("InsertTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool?>("IsRemoved")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("RemoveByUserId")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("RemoveTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdateByUserId")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserAnsweredProject");
                 });
 
             modelBuilder.Entity("Domain.Entities.TeacherEntities.Teacher", b =>
@@ -589,27 +633,27 @@ namespace Persistence.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "ee1e08d3-e7cf-49df-87d2-5b0492c7102b",
+                            ConcurrencyStamp = "02bab734-351b-405d-a739-7e1360fcf50b",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "563c47de-cabf-42ed-ba10-8a6d1fa215eb",
+                            ConcurrencyStamp = "538e4e9e-fe0e-4ba4-99c3-ac7c9af8c6c9",
                             Name = "Teacher",
                             NormalizedName = "TEACHER"
                         },
                         new
                         {
                             Id = 3,
-                            ConcurrencyStamp = "53744853-5d6d-4702-b39a-d65a68457506",
+                            ConcurrencyStamp = "df179d45-1de2-4c2b-adac-23dda44ec41b",
                             Name = "Student",
                             NormalizedName = "STUDENT"
                         });
                 });
 
-            modelBuilder.Entity("Domain.Entities.UserEntities.ApplicationUser", b =>
+            modelBuilder.Entity("Domain.Entities.UserAgg.ApplicationUser", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -839,7 +883,7 @@ namespace Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.UserEntities.ApplicationUser", null)
+                    b.HasOne("Domain.Entities.UserAgg.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("StudentsId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -887,7 +931,7 @@ namespace Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.UserEntities.ApplicationUser", "User")
+                    b.HasOne("Domain.Entities.UserAgg.ApplicationUser", "User")
                         .WithMany("PracticeQuestionAnswers")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -906,7 +950,7 @@ namespace Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.UserEntities.ApplicationUser", "User")
+                    b.HasOne("Domain.Entities.UserAgg.ApplicationUser", "User")
                         .WithMany("UserAnsweredQuestions")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -936,7 +980,26 @@ namespace Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.UserEntities.ApplicationUser", "User")
+                    b.HasOne("Domain.Entities.UserAgg.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ProjectEntities.UserAnsweredProject", b =>
+                {
+                    b.HasOne("Domain.Entities.ProjectEntities.Project", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.UserAgg.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -949,7 +1012,7 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.TeacherEntities.Teacher", b =>
                 {
-                    b.HasOne("Domain.Entities.UserEntities.ApplicationUser", "User")
+                    b.HasOne("Domain.Entities.UserAgg.ApplicationUser", "User")
                         .WithMany("Teachers")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -960,7 +1023,7 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.TeacherEntities.TeacherRequest", b =>
                 {
-                    b.HasOne("Domain.Entities.UserEntities.ApplicationUser", "User")
+                    b.HasOne("Domain.Entities.UserAgg.ApplicationUser", "User")
                         .WithMany("TeacherRequests")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -980,7 +1043,7 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
                 {
-                    b.HasOne("Domain.Entities.UserEntities.ApplicationUser", null)
+                    b.HasOne("Domain.Entities.UserAgg.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -989,7 +1052,7 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
-                    b.HasOne("Domain.Entities.UserEntities.ApplicationUser", null)
+                    b.HasOne("Domain.Entities.UserAgg.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1004,7 +1067,7 @@ namespace Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.UserEntities.ApplicationUser", null)
+                    b.HasOne("Domain.Entities.UserAgg.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1013,7 +1076,7 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
-                    b.HasOne("Domain.Entities.UserEntities.ApplicationUser", null)
+                    b.HasOne("Domain.Entities.UserAgg.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1047,7 +1110,7 @@ namespace Persistence.Migrations
                     b.Navigation("Classes");
                 });
 
-            modelBuilder.Entity("Domain.Entities.UserEntities.ApplicationUser", b =>
+            modelBuilder.Entity("Domain.Entities.UserAgg.ApplicationUser", b =>
                 {
                     b.Navigation("PracticeQuestionAnswers");
 

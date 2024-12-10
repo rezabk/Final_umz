@@ -7,6 +7,7 @@ using Application.ViewModels.Profile;
 using Common.Enums;
 using Common.ExceptionType.CustomException;
 using Domain.Entities.UserAgg;
+using Domain.Entities.UserEntities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 

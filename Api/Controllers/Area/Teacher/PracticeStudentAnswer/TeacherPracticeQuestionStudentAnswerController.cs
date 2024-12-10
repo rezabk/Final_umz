@@ -4,7 +4,7 @@ using Common.Enums.RolesManagment;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Api.Controllers.Area.Teacher.TeacherPracticeStudentAnswer;
+namespace Api.Controllers.Area.Teacher.PracticeStudentAnswer;
 
 [Area("Teacher")]
 [Authorize(Roles = nameof(UserRolesEnum.Teacher))]

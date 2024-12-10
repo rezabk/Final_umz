@@ -9,6 +9,7 @@ using Application.Services.Concrete.ProfileService;
 using Application.Services.Concrete.ProfileService.ProfileValidator;
 using Application.Services.Concrete.Sms;
 using Application.Services.Concrete.StudentPracticeService;
+using Application.Services.Concrete.StudentProjectService;
 using Application.Services.Concrete.StudentService;
 using Application.Services.Concrete.TeacherRequestService;
 using Application.Services.Concrete.TeacherService.TeacherClassService;
@@ -16,6 +17,7 @@ using Application.Services.Concrete.TeacherService.TeacherPracticeQuestionServic
 using Application.Services.Concrete.TeacherService.TeacherPracticeService;
 using Application.Services.Concrete.TeacherService.TeacherPracticeStudentAnswerService;
 using Application.Services.Concrete.TeacherService.TeacherProjectService;
+using Application.Services.Concrete.TeacherService.TeacherProjectStudentAnswerService;
 using Application.Services.Interface.AccountService;
 using Application.Services.Interface.AccountService.AccountValidatorService;
 using Application.Services.Interface.Admin.AdminRoleService;
@@ -25,6 +27,7 @@ using Application.Services.Interface.ProfileService;
 using Application.Services.Interface.ProfileService.ProfileValidator;
 using Application.Services.Interface.Sms;
 using Application.Services.Interface.StudentPracticeService;
+using Application.Services.Interface.StudentProjectService;
 using Application.Services.Interface.StudentService;
 using Application.Services.Interface.TeacherRequestService;
 using Application.Services.Interface.TeacherService.TeacherClassService;
@@ -32,6 +35,7 @@ using Application.Services.Interface.TeacherService.TeacherPracticeQuestionServi
 using Application.Services.Interface.TeacherService.TeacherPracticeService;
 using Application.Services.Interface.TeacherService.TeacherPracticeStudentAnswerService;
 using Application.Services.Interface.TeacherService.TeacherProjectService;
+using Application.Services.Interface.TeacherService.TeacherProjectStudentAnswerService;
 using Application.Services.Interface.Utils;
 using Application.Utils;
 using Application.ViewModels.Account;
@@ -71,11 +75,14 @@ public static class ServiceRegistration
         services.AddScoped<ITeacherPracticeService, TeacherPracticeService>();
         services.AddScoped<IStudentService, StudentService>();
         services.AddScoped<IStudentPracticeService, StudentPracticeService>();
+        services.AddScoped<IStudentProjectService, StudentProjectService>();
         services.AddScoped<ITeacherPracticeQuestionService, TeacherPracticeQuestionService>();
         services.AddScoped<ITeacherProjectService, TeacherProjectService>();
         services.AddScoped<ITeacherPracticeStudentAnswerService, TeacherPracticeStudentAnswerService>();
         services.AddScoped<ITeacherRequestService, TeacherRequestService>();
         services.AddScoped<ITeacherRequestAdminService, TeacherRequestAdminService>();
+        services.AddScoped<ITeacherProjectStudentAnswerService, TeacherProjectStudentAnswerService>();
+       
         
 
         services.AddScoped<ITokenService, TokenService>();

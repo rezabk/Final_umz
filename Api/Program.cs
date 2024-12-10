@@ -3,6 +3,7 @@ using Api.Filter;
 using Application;
 using Application.IRepositories;
 using Domain.Entities.UserAgg;
+using Domain.Entities.UserEntities;
 using FluentValidation.AspNetCore;
 using Infrastructure.IOC.IdentityContextConfigs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

@@ -3,7 +3,7 @@ using Domain.Entities.PracticeEntities;
 using Domain.Entities.TeacherEntities;
 using Microsoft.AspNetCore.Identity;
 
-namespace Domain.Entities.UserAgg;
+namespace Domain.Entities.UserEntities;
 
 public class ApplicationUser : IdentityUser<int>
 {

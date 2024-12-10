@@ -91,4 +91,10 @@ public enum MessageId
     
     [Description("شما درخواست جدید دارید")]
     OpenRequest = -29,
+    
+    [Description("کاربر عوض این کلاس نیست")]
+    UserNotInClass = -30, 
+    
+    [Description("شما به این تمرین پاسخ نداده اید")]
+    NotAnswered = -31,
 }

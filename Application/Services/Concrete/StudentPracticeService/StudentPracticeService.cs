@@ -24,26 +24,20 @@ public class StudentPracticeService : ServiceBase<StudentPracticeService>, IStud
 {
     private readonly IRepository<Practice> _practiceRepository;
     private readonly IRepository<PracticeQuestion> _practiceQuestionRepository;
-    private readonly IRepository<Class> _classRepository;
-    private readonly UserManager<ApplicationUser> _userManager;
     private readonly IConfiguration _configuration;
-    private readonly IWebHostEnvironment _hostingEnvironment;
+
     private readonly ILiaraUploader _uploader;
     private readonly ICustomLoggerService<StudentPracticeService> _logger;
 
     public StudentPracticeService(IUnitOfWork unitOfWork, IConfiguration configuration, ILiaraUploader uploader,
-        IHttpContextAccessor httpContextAccessor, UserManager<ApplicationUser> userManager,
-        IWebHostEnvironment hostingEnvironment,
+        IHttpContextAccessor httpContextAccessor,
         ICustomLoggerService<StudentPracticeService> logger) : base(httpContextAccessor)
     {
         _practiceRepository = unitOfWork.GetRepository<Practice>();
         _practiceQuestionRepository = unitOfWork.GetRepository<PracticeQuestion>();
-        _classRepository = unitOfWork.GetRepository<Class>();
         _configuration = configuration;
-        _hostingEnvironment = hostingEnvironment;
         _uploader = uploader;
         _logger = logger;
-        _userManager = userManager;
     }
 
     public Task<List<ShowPracticeByClassId>> GetAllPracticeByClassId(int classId)
@@ -94,7 +88,7 @@ public class StudentPracticeService : ServiceBase<StudentPracticeService>, IStud
         if (practiceQuestion.UserAnsweredQuestions.Select(x => x.UserId).Contains(CurrentUserId))
             throw new FormValidationException(MessageId.AlreadyAnsweredQuestion);
 
-        if (DateTime.UtcNow > practiceQuestion.Practice.EndDate)
+        if (DateTime.Now > practiceQuestion.Practice.EndDate)
             throw new FormValidationException(MessageId.DeadlineReached);
 
         var newPracticeQuestionAnswer = new PracticeQuestionAnswer
