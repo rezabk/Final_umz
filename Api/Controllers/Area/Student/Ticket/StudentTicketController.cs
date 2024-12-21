@@ -30,6 +30,13 @@ public class StudentTicketController : BaseController
     {
         return await _ticketStudentService.GetAllTicket();
     }
+    
+      
+    [HttpGet("[action]")]
+    public async Task<List<ResponseGetAllTicketViewModel>> GetAllNewTicket()
+    {
+        return await _ticketStudentService.GetAllNewTicket();
+    }
 
     [HttpPost("[action]")]
     public async Task<int> CreateTicket([FromForm] RequestCreateTicketViewModel model)

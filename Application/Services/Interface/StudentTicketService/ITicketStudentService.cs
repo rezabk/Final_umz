@@ -9,6 +9,8 @@ public interface ITicketStudentService
 
     Task<List<ResponseGetAllTicketViewModel>> GetAllTicket();
 
+    Task<List<ResponseGetAllTicketViewModel>> GetAllNewTicket();
+
     Task<int> CreateTicket(RequestCreateTicketViewModel model);
 
     Task<int> SendMessage(RequestSendMessageViewModel model);

@@ -4,8 +4,9 @@ namespace Common.Enums;
 
 public enum TicketStatusEnum
 {
-    [Description("جدید")] New = 1,
-    [Description("پاسخ استاد")] TeacherResponse = 2,
-    [Description("پاسخ دانشجو")] UserResponse = 3,
-    [Description("بسته")] Closed = 4,
+    [Description("جدید توسط دانشجو")] NewByUser = 1,
+    [Description("جدید توسط استاد")] NewByTeacher = 2,
+    [Description("پاسخ استاد")] TeacherResponse = 3,
+    [Description("پاسخ دانشجو")] UserResponse = 4,
+    [Description("بسته")] Closed = 5,
 }

@@ -19,6 +19,7 @@ using Application.Services.Concrete.TeacherService.TeacherPracticeService;
 using Application.Services.Concrete.TeacherService.TeacherPracticeStudentAnswerService;
 using Application.Services.Concrete.TeacherService.TeacherProjectService;
 using Application.Services.Concrete.TeacherService.TeacherProjectStudentAnswerService;
+using Application.Services.Concrete.TeacherService.TeacherTicketService;
 using Application.Services.Interface.AccountService;
 using Application.Services.Interface.AccountService.AccountValidatorService;
 using Application.Services.Interface.Admin.AdminRoleService;
@@ -38,6 +39,7 @@ using Application.Services.Interface.TeacherService.TeacherPracticeService;
 using Application.Services.Interface.TeacherService.TeacherPracticeStudentAnswerService;
 using Application.Services.Interface.TeacherService.TeacherProjectService;
 using Application.Services.Interface.TeacherService.TeacherProjectStudentAnswerService;
+using Application.Services.Interface.TeacherService.TeacherTicketService;
 using Application.Services.Interface.Utils;
 using Application.Utils;
 using Application.ViewModels.Account;
@@ -87,6 +89,7 @@ public static class ServiceRegistration
         services.AddScoped<ITeacherRequestService, TeacherRequestService>();
         services.AddScoped<ITeacherRequestAdminService, TeacherRequestAdminService>();
         services.AddScoped<ITeacherProjectStudentAnswerService, TeacherProjectStudentAnswerService>();
+        services.AddScoped<ITeacherTicketService, TeacherTicketService>();
        
         
 
@@ -118,6 +121,7 @@ public static class ServiceRegistration
         services.AddTransient<IValidator<RequestSetProjectViewModel>, RequestSetProjectValidator>();
         services.AddTransient<IValidator<RequestCreateTicketViewModel>, RequestCreateTicketValidator>();
         services.AddTransient<IValidator<RequestSendMessageViewModel>, RequestSendMessageValidator>();
+        services.AddTransient<IValidator<RequestTeacherCreateTicketViewModel>, RequestTeacherCreateTicketValidator>();
         
         return services;
     }

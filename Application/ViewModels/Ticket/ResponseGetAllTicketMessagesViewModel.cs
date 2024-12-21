@@ -11,6 +11,8 @@ public class ResponseGetAllTicketViewModel
 
     public string FileName { get; set; }
 
+    public string TeacherFullName { get; set; }
+
     public string CreateDate { get; set; }
 
     public int ClassId { get; set; }
