@@ -61,20 +61,20 @@ public class ApplicationDataBaseContext :
 
             if (item.State == EntityState.Added && insert != null)
             {
-                item.Property("InsertTime").CurrentValue = DateTime.UtcNow.Add(new TimeSpan(3, 30, 0));
+                item.Property("InsertTime").CurrentValue = DateTime.UtcNow;
                 item.Property("IsRemoved").CurrentValue = false;
                 item.Property("InsertByUserId").CurrentValue = _context.HttpContext?.User?.Identity?.Name;
             }
 
             if (item.State == EntityState.Modified && update != null)
             {
-                item.Property("UpdateTime").CurrentValue = DateTime.UtcNow.Add(new TimeSpan(3, 30, 0));
+                item.Property("UpdateTime").CurrentValue = DateTime.UtcNow;
                 item.Property("UpdateByUserId").CurrentValue = _context.HttpContext?.User?.Identity?.Name;
             }
 
             if (item.State == EntityState.Deleted && remove != null && isremoved != null)
             {
-                item.Property("RemoveTime").CurrentValue = DateTime.UtcNow.Add(new TimeSpan(3, 30, 0));
+                item.Property("RemoveTime").CurrentValue = DateTime.UtcNow;
                 item.Property("RemoveByUserId").CurrentValue = _context.HttpContext?.User?.Identity?.Name;
                 item.Property("IsRemoved").CurrentValue = true;
                 item.State = EntityState.Modified;
@@ -110,7 +110,7 @@ public class ApplicationDataBaseContext :
 
             if (item.State == EntityState.Added && insert != null)
             {
-                item.Property("InsertTime").CurrentValue = DateTime.UtcNow.Add(new TimeSpan(3, 30, 0));
+                item.Property("InsertTime").CurrentValue = DateTime.UtcNow;
                 item.Property("IsRemoved").CurrentValue = false;
                 try
                 {
@@ -128,7 +128,7 @@ public class ApplicationDataBaseContext :
 
             if (item.State == EntityState.Modified && update != null)
             {
-                item.Property("UpdateTime").CurrentValue = DateTime.UtcNow.Add(new TimeSpan(3, 30, 0));
+                item.Property("UpdateTime").CurrentValue = DateTime.UtcNow;
                 try
                 {
                     item.Property("UpdateByUserId").CurrentValue =
@@ -145,7 +145,7 @@ public class ApplicationDataBaseContext :
 
             if (item.State == EntityState.Deleted && remove != null && isremoved != null)
             {
-                item.Property("RemoveTime").CurrentValue = DateTime.UtcNow.Add(new TimeSpan(3, 30, 0));
+                item.Property("RemoveTime").CurrentValue = DateTime.UtcNow;
                 try
                 {
                     item.Property("RemoveByUserId").CurrentValue =

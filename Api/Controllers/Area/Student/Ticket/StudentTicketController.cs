@@ -24,6 +24,12 @@ public class StudentTicketController : BaseController
     {
         return await _ticketStudentService.GetClassTeacherId(classId);
     }
+    
+    [HttpGet("[action]")]
+    public async Task<List<ResponseGetAllTicketViewModel>> GetAllTicket()
+    {
+        return await _ticketStudentService.GetAllTicket();
+    }
 
     [HttpPost("[action]")]
     public async Task<int> CreateTicket([FromForm] RequestCreateTicketViewModel model)
@@ -37,10 +43,22 @@ public class StudentTicketController : BaseController
         return await _ticketStudentService.SendMessage(model);
     }
     
+    [HttpPost("[action]")]
+    public async Task<bool> CloseTicket(int ticketId)
+    {
+        return await _ticketStudentService.CloseTicket(ticketId);
+    }
+    
     [HttpGet("[action]")]
     public async Task<ResponseGetAllTicketMessagesViewModel> GetAllTicketMessages(int ticketId)
     {
         return await _ticketStudentService.GetAllTicketMessages(ticketId);
+    }
+    
+    [HttpGet("[action]")]
+    public async Task<ResponseGetAllTicketMessagesViewModel> GetAllTicketTeacherMessages(int ticketId)
+    {
+        return await _ticketStudentService.GetAllTicketTeacherMessages(ticketId);
     }
 
     [HttpGet("[action]")]

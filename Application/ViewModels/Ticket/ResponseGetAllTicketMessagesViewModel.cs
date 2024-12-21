@@ -3,7 +3,7 @@ using Common.Enums.RolesManagment;
 
 namespace Application.ViewModels.Ticket;
 
-public class ResponseGetAllTicketMessagesViewModel
+public class ResponseGetAllTicketViewModel
 {
     public int TicketId { get; set; }
 
@@ -19,10 +19,17 @@ public class ResponseGetAllTicketMessagesViewModel
 
     public string? CloseTime { get; set; }
 
+    public int ClosedByUserId { get; set; }
+
+    public string? ClosedByFullName { get; set; }
+
     public TicketStatusEnum Status { get; set; }
 
     public string StatusTitle { get; set; }
+}
 
+public class ResponseGetAllTicketMessagesViewModel : ResponseGetAllTicketViewModel
+{
     public List<MessagesViewModel> Messages { get; set; }
 }
 
@@ -32,7 +39,7 @@ public class MessagesViewModel
 
     public string FileName { get; set; }
 
-    public string SentByUserId { get; set; }
+    public int SentByUserId { get; set; }
 
     public UserRolesEnum SentByRole { get; set; }
 

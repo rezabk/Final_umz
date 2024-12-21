@@ -5,12 +5,15 @@ using Application.Services.Interface.Logger;
 using Application.Services.Interface.StudentTicketService;
 using Application.ViewModels.Public;
 using Application.ViewModels.Ticket;
+using Common;
 using Common.Enums;
 using Common.Enums.RolesManagment;
 using Common.ExceptionType.CustomException;
 using Domain.Entities.ClassEntities;
 using Domain.Entities.TicketEntities;
+using Domain.Entities.UserEntities;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -21,13 +24,14 @@ public class TicketStudentService : ServiceBase<TicketStudentService>, ITicketSt
     private readonly IRepository<Class> _classRepository;
     private readonly IRepository<Ticket> _ticketRepository;
     private readonly IRepository<TicketMessage> _ticketMessageRepository;
+    private readonly UserManager<ApplicationUser> _userManager;
     private readonly ICustomLoggerService<TicketStudentService> _logger;
     private readonly IConfiguration _configuration;
     private readonly ILiaraUploader _uploader;
     private readonly IHttpContextAccessor _contextAccessor;
 
     public TicketStudentService(IUnitOfWork unitOfWork, ICustomLoggerService<TicketStudentService> logger,
-        IConfiguration configuration, ILiaraUploader uploader,
+        IConfiguration configuration, UserManager<ApplicationUser> userManager, ILiaraUploader uploader,
         IHttpContextAccessor contextAccessor) : base(contextAccessor)
     {
         _classRepository = unitOfWork.GetRepository<Class>();
@@ -36,6 +40,7 @@ public class TicketStudentService : ServiceBase<TicketStudentService>, ITicketSt
         _logger = logger;
         _uploader = uploader;
         _configuration = configuration;
+        _userManager = userManager;
     }
 
 
@@ -51,6 +56,33 @@ public class TicketStudentService : ServiceBase<TicketStudentService>, ITicketSt
             Id = classTeacher.TeacherId,
             Title = classTeacher.FirstName + " " + classTeacher.LastName
         });
+    }
+
+    public Task<List<ResponseGetAllTicketViewModel>> GetAllTicket()
+    {
+        var tickets = _ticketRepository
+            .DeferredWhere(x => x.UserId == CurrentUserId)
+            .Include(x => x.User)
+            .Include(x => x.Class)
+            .ToList();
+
+
+        return Task.FromResult(tickets.Select(x => new ResponseGetAllTicketViewModel
+        {
+            TicketId = x.Id,
+            Status = x.Status,
+            StatusTitle = x.Status.GetEnumDescription(),
+            Subject = x.Subject,
+            ClassId = x.ClassId,
+            ClassTitle = x.Class.Title,
+            FileName = x.FileName,
+            CreateDate = x.SentTime.ConvertMiladiToJalali(),
+            CloseTime = x.CloseTime.ConvertMiladiToJalali(),
+            ClosedByUserId = x.ClosedByUserId,
+            ClosedByFullName = x.ClosedByUserId > 0
+                ? GetUserFullName(x.ClosedByUserId)
+                : null
+        }).ToList());
     }
 
     public Task<int> CreateTicket(RequestCreateTicketViewModel model)
@@ -71,7 +103,7 @@ public class TicketStudentService : ServiceBase<TicketStudentService>, ITicketSt
             Status = TicketStatusEnum.New,
             OpenByUserId = CurrentUserId,
             UserId = CurrentUserId,
-            SentTime = DateTime.UtcNow.AddDays(3).Add(new TimeSpan(3, 30, 0)),
+            SentTime = DateTime.UtcNow,
         };
 
         if (model.File != null)
@@ -96,12 +128,13 @@ public class TicketStudentService : ServiceBase<TicketStudentService>, ITicketSt
 
     public Task<int> SendMessage(RequestSendMessageViewModel model)
     {
-        var ticket = _ticketRepository.DeferredWhere(x => x.Id == model.TicketId).FirstOrDefault() ??
+        var ticket = _ticketRepository.DeferredWhere(x => x.Id == model.TicketId && x.Status != TicketStatusEnum.Closed)
+                         .FirstOrDefault() ??
                      throw new NotFoundException();
 
         var newTicketMessage = new TicketMessage
         {
-            SentTime = DateTime.UtcNow.AddDays(3).Add(new TimeSpan(3, 30, 0)),
+            SentTime = DateTime.UtcNow,
             TicketId = model.TicketId,
             Message = model.Message,
             SentByUserId = CurrentUserId,
@@ -133,13 +166,100 @@ public class TicketStudentService : ServiceBase<TicketStudentService>, ITicketSt
         }
     }
 
-    public Task<ResponseGetAllTicketMessagesViewModel> GetAllTicketMessages(int ticketId)
+    public Task<bool> CloseTicket(int ticketId)
     {
         var ticket =
-            _ticketRepository.DeferredWhere(x => x.Id == ticketId).Include(x => x.TicketMessages).FirstOrDefault() ??
-            throw new NotFoundException();
-        
-        //todo
+            _ticketRepository.DeferredWhere(x => x.UserId == CurrentUserId && x.Status != TicketStatusEnum.Closed)
+                .FirstOrDefault() ?? throw new NotFoundException();
+
+        ticket.Status = TicketStatusEnum.Closed;
+        ticket.ClosedByUserId = CurrentUserId;
+
+        try
+        {
+            _ticketRepository.UpdateAsync(ticket, true);
+            _logger.LogUpdateSuccess("Ticket", ticket.Id);
+            return Task.FromResult(true);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogUpdateError(exception, "Ticket", ticket.Id);
+            throw exception ?? throw new ErrorException();
+        }
+    }
+
+    public Task<ResponseGetAllTicketMessagesViewModel> GetAllTicketMessages(int ticketId)
+    {
+        var ticket = _ticketRepository
+            .DeferredWhere(x => x.Id == ticketId && x.UserId == CurrentUserId)
+            .Include(x => x.TicketMessages.OrderByDescending(y => y.SentTime))
+            .ThenInclude(x => x.SentByUser)
+            .Include(x => x.Class)
+            .FirstOrDefault() ?? throw new NotFoundException();
+
+
+        return Task.FromResult(new ResponseGetAllTicketMessagesViewModel
+        {
+            TicketId = ticket.Id,
+            Status = ticket.Status,
+            StatusTitle = ticket.Status.GetEnumDescription(),
+            Subject = ticket.Subject,
+            ClassId = ticket.ClassId,
+            ClassTitle = ticket.Class.Title,
+            FileName = ticket.FileName,
+            CreateDate = ticket.SentTime.ConvertMiladiToJalali(),
+            CloseTime = ticket.CloseTime.ConvertMiladiToJalali(),
+            ClosedByUserId = ticket.ClosedByUserId,
+            ClosedByFullName = ticket.ClosedByUserId > 0
+                ? GetUserFullName(ticket.ClosedByUserId)
+                : null,
+            Messages = ticket.TicketMessages.Select(x => new MessagesViewModel
+            {
+                Message = x.Message,
+                FileName = x.FileName,
+                SentByRole = x.SentByRole,
+                SentTime = x.SentTime.ConvertMiladiToJalali(),
+                SentByUserId = x.SentByUserId,
+                SentByFullName = x.SentByUser.FirstName + " " + x.SentByUser.LastName
+            }).ToList()
+        });
+    }
+
+    public Task<ResponseGetAllTicketMessagesViewModel> GetAllTicketTeacherMessages(int ticketId)
+    {
+        var ticket = _ticketRepository
+            .DeferredWhere(x => x.Id == ticketId && x.UserId == CurrentUserId)
+            .Include(x =>
+                x.TicketMessages.Where(y => y.SentByRole == UserRolesEnum.Teacher).OrderByDescending(y => y.SentTime))
+            .ThenInclude(x => x.SentByUser)
+            .Include(x => x.Class)
+            .FirstOrDefault() ?? throw new NotFoundException();
+
+        return Task.FromResult(new ResponseGetAllTicketMessagesViewModel
+        {
+            TicketId = ticket.Id,
+            Status = ticket.Status,
+            StatusTitle = ticket.Status.GetEnumDescription(),
+            Subject = ticket.Subject,
+            ClassId = ticket.ClassId,
+            ClassTitle = ticket.Class.Title,
+            FileName = ticket.FileName,
+            CreateDate = ticket.SentTime.ConvertMiladiToJalali(),
+            CloseTime = ticket.CloseTime.ConvertMiladiToJalali(),
+            ClosedByUserId = ticket.ClosedByUserId,
+            ClosedByFullName = ticket.ClosedByUserId > 0
+                ? GetUserFullName(ticket.ClosedByUserId)
+                : null,
+            Messages = ticket.TicketMessages.Select(x => new MessagesViewModel
+            {
+                Message = x.Message,
+                FileName = x.FileName,
+                SentByRole = x.SentByRole,
+                SentTime = x.SentTime.ConvertMiladiToJalali(),
+                SentByUserId = x.SentByUserId,
+                SentByFullName = x.SentByUser.FirstName + " " + x.SentByUser.LastName
+            }).ToList()
+        });
     }
 
     public Task<ResponseGetFileViewModel> GetTicketFile(string fileName)
@@ -178,5 +298,11 @@ public class TicketStudentService : ServiceBase<TicketStudentService>, ITicketSt
     {
         var fileName = await _uploader.Upload(_configuration.GetSection("File:FileTicket").Value, file, null);
         return fileName;
+    }
+
+    private string GetUserFullName(int userId)
+    {
+        var user = _userManager.Users.FirstOrDefault(y => y.Id == userId);
+        return user != null ? $"{user.FirstName} {user.LastName}" : null;
     }
 }
