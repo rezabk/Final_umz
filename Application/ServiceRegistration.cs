@@ -11,6 +11,7 @@ using Application.Services.Concrete.Sms;
 using Application.Services.Concrete.StudentPracticeService;
 using Application.Services.Concrete.StudentProjectService;
 using Application.Services.Concrete.StudentService;
+using Application.Services.Concrete.StudentTicketService;
 using Application.Services.Concrete.TeacherRequestService;
 using Application.Services.Concrete.TeacherService.TeacherClassService;
 using Application.Services.Concrete.TeacherService.TeacherPracticeQuestionService;
@@ -18,6 +19,7 @@ using Application.Services.Concrete.TeacherService.TeacherPracticeService;
 using Application.Services.Concrete.TeacherService.TeacherPracticeStudentAnswerService;
 using Application.Services.Concrete.TeacherService.TeacherProjectService;
 using Application.Services.Concrete.TeacherService.TeacherProjectStudentAnswerService;
+using Application.Services.Concrete.TeacherService.TeacherTicketService;
 using Application.Services.Interface.AccountService;
 using Application.Services.Interface.AccountService.AccountValidatorService;
 using Application.Services.Interface.Admin.AdminRoleService;
@@ -29,6 +31,7 @@ using Application.Services.Interface.Sms;
 using Application.Services.Interface.StudentPracticeService;
 using Application.Services.Interface.StudentProjectService;
 using Application.Services.Interface.StudentService;
+using Application.Services.Interface.StudentTicketService;
 using Application.Services.Interface.TeacherRequestService;
 using Application.Services.Interface.TeacherService.TeacherClassService;
 using Application.Services.Interface.TeacherService.TeacherPracticeQuestionService;
@@ -36,6 +39,7 @@ using Application.Services.Interface.TeacherService.TeacherPracticeService;
 using Application.Services.Interface.TeacherService.TeacherPracticeStudentAnswerService;
 using Application.Services.Interface.TeacherService.TeacherProjectService;
 using Application.Services.Interface.TeacherService.TeacherProjectStudentAnswerService;
+using Application.Services.Interface.TeacherService.TeacherTicketService;
 using Application.Services.Interface.Utils;
 using Application.Utils;
 using Application.ViewModels.Account;
@@ -56,6 +60,8 @@ using Application.ViewModels.Profile.ChangePassword;
 using Application.ViewModels.Profile.ChangePassword.FluentValidation;
 using Application.ViewModels.Project;
 using Application.ViewModels.Project.FluentValidation;
+using Application.ViewModels.Ticket;
+using Application.ViewModels.Ticket.FluentValidation;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -76,12 +82,14 @@ public static class ServiceRegistration
         services.AddScoped<IStudentService, StudentService>();
         services.AddScoped<IStudentPracticeService, StudentPracticeService>();
         services.AddScoped<IStudentProjectService, StudentProjectService>();
+        services.AddScoped<ITicketStudentService, TicketStudentService>();
         services.AddScoped<ITeacherPracticeQuestionService, TeacherPracticeQuestionService>();
         services.AddScoped<ITeacherProjectService, TeacherProjectService>();
         services.AddScoped<ITeacherPracticeStudentAnswerService, TeacherPracticeStudentAnswerService>();
         services.AddScoped<ITeacherRequestService, TeacherRequestService>();
         services.AddScoped<ITeacherRequestAdminService, TeacherRequestAdminService>();
         services.AddScoped<ITeacherProjectStudentAnswerService, TeacherProjectStudentAnswerService>();
+        services.AddScoped<ITeacherTicketService, TeacherTicketService>();
        
         
 
@@ -111,6 +119,9 @@ public static class ServiceRegistration
         services.AddTransient<IValidator<RequestSetQuestionViewModel>, SetQuestionValidator>();
         services.AddTransient<IValidator<RequestAnswerPracticeQuestionViewModel>, AnswerPracticeQuestionValidator>();
         services.AddTransient<IValidator<RequestSetProjectViewModel>, RequestSetProjectValidator>();
+        services.AddTransient<IValidator<RequestCreateTicketViewModel>, RequestCreateTicketValidator>();
+        services.AddTransient<IValidator<RequestSendMessageViewModel>, RequestSendMessageValidator>();
+        services.AddTransient<IValidator<RequestTeacherCreateTicketViewModel>, RequestTeacherCreateTicketValidator>();
         
         return services;
     }

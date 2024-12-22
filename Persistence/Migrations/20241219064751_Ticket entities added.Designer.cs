@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Persistence.Contexts;
@@ -11,9 +12,11 @@ using Persistence.Contexts;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDataBaseContext))]
-    partial class ApplicationDataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20241219064751_Ticket entities added")]
+    partial class Ticketentitiesadded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -568,9 +571,6 @@ namespace Persistence.Migrations
                     b.Property<int>("ClassId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime?>("CloseTime")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<int>("ClosedByUserId")
                         .HasColumnType("integer");
 
@@ -722,21 +722,21 @@ namespace Persistence.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "5321171c-534f-4677-9c15-029d26944df4",
+                            ConcurrencyStamp = "62b9cbd9-a001-4bba-a193-488eed547a33",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "eb6a0e29-910c-4c5f-8893-d3d4bfd7e15a",
+                            ConcurrencyStamp = "3c8c4c14-35b7-4cf0-a788-048efcd99020",
                             Name = "Teacher",
                             NormalizedName = "TEACHER"
                         },
                         new
                         {
                             Id = 3,
-                            ConcurrencyStamp = "f6b97afb-8e1a-4679-8737-c3286d5539dc",
+                            ConcurrencyStamp = "e9925b55-7fb6-4f3f-b52d-4c61c6553102",
                             Name = "Student",
                             NormalizedName = "STUDENT"
                         });
