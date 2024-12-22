@@ -2,6 +2,7 @@
 using Common.Enums.ClassEnum;
 using Domain.Attributes;
 using Domain.Entities.BaseAgg;
+using Domain.Entities.CommunityEntities;
 using Domain.Entities.PracticeEntities;
 using Domain.Entities.TeacherEntities;
 using Domain.Entities.UserAgg;
@@ -26,6 +27,10 @@ public class Class : EntityBaseKeyInteger
     public int TotalAllowedStudent { get; set; }
 
     public ClassSemesterEnum Semester { get; set; }
+    
+    public int CommunityId { get; set; }
+    
+    public virtual Community Community { get; set; }
 
 
     public virtual ICollection<Practice> Practices { get; set; }

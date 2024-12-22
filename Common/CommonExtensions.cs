@@ -168,7 +168,30 @@ public static class CommonExtensions
         var second = obj.GetSecond(date);
         var dayStr = obj.GetDayOfMonth(date).CompareTo(10) >= 0 ? day.ToString() : "0" + day;
         var monthStr = obj.GetMonth(date).CompareTo(10) >= 0 ? month.ToString() : "0" + month;
-        return showTime ? $"{year}/{monthStr}/{dayStr} {hour}:{minute}:{second}" : $"{year}/{monthStr}/{dayStr}";
+        return showTime
+            ? $"{year}/{monthStr}/{dayStr} {hour }:{minute }:{second}"
+            : $"{year}/{monthStr}/{dayStr}";
+    }
+    
+    public static string ConvertMiladiToJalaliUTC(this DateTime date, bool showTime)
+    {
+        if (date <= DateTime.MinValue) return "";
+        var obj = new PersianCalendar();
+        //if (date <= DateTime.MinValue)
+        //{
+        //    date = new DateTime(622, 3, 21);
+        //}
+        var day = obj.GetDayOfMonth(date);
+        var month = obj.GetMonth(date);
+        var year = obj.GetYear(date);
+        var hour = obj.GetHour(date);
+        var minute = obj.GetMinute(date);
+        var second = obj.GetSecond(date);
+        var dayStr = obj.GetDayOfMonth(date).CompareTo(10) >= 0 ? day.ToString() : "0" + day;
+        var monthStr = obj.GetMonth(date).CompareTo(10) >= 0 ? month.ToString() : "0" + month;
+        return showTime
+            ? $"{year}/{monthStr}/{dayStr} {hour + 3}:{minute + 30}:{second}"
+            : $"{year}/{monthStr}/{dayStr}";
     }
 
     public static string ConvertMiladiToJalali(this DateTime date)

@@ -1,5 +1,6 @@
 ﻿using Application.Services.Interface.TeacherService.TeacherClassService;
 using Application.ViewModels.Class;
+using Application.ViewModels.Practice;
 using Application.ViewModels.Public;
 using Common.Enums.RolesManagment;
 using Microsoft.AspNetCore.Authorization;
@@ -32,10 +33,25 @@ public class TeacherClassController : BaseController
         return await _teacherClassService.GetAllClassByFilter(model);
     }
 
+
+    [HttpGet("[action]")]
+    public async Task<List<UserAnsweredList>> GetAllClassStudents(int classId)
+
+    {
+        return await _teacherClassService.GetAllClassStudents(classId);
+    }
+
+
     [HttpPost("[action]")]
     public async Task<int> SetClass([FromBody] RequestSetClassViewModel model)
     {
         return await _teacherClassService.SetClass(model);
+    }
+
+    [HttpDelete("[action]")]
+    public async Task<bool> RemoveStudent(int classId, int userId)
+    {
+        return await _teacherClassService.RemoveStudent(classId, userId);
     }
 
     [HttpDelete("[action]")]

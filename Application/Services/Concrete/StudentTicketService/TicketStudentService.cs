@@ -65,7 +65,7 @@ public class TicketStudentService : ServiceBase<TicketStudentService>, ITicketSt
             .Include(x => x.User)
             .Include(x => x.Class)
             .Include(x => x.Teacher).ThenInclude(x => x.User)
-            .OrderByDescending(x=>x.Id)
+            .OrderByDescending(x => x.Id)
             .ToList();
 
 
@@ -95,7 +95,7 @@ public class TicketStudentService : ServiceBase<TicketStudentService>, ITicketSt
             .Include(x => x.User)
             .Include(x => x.Class)
             .Include(x => x.Teacher).ThenInclude(x => x.User)
-            .OrderByDescending(x=>x.Id)
+            .OrderByDescending(x => x.Id)
             .ToList();
 
 
@@ -255,7 +255,7 @@ public class TicketStudentService : ServiceBase<TicketStudentService>, ITicketSt
                 Message = x.Message,
                 FileName = x.FileName,
                 SentByRole = x.SentByRole,
-                SentTime = x.SentTime.ConvertMiladiToJalali(),
+                SentTime = x.SentTime.ConvertMiladiToJalaliUTC(true),
                 SentByUserId = x.SentByUserId,
                 SentByFullName = x.SentByUser.FirstName + " " + x.SentByUser.LastName
             }).ToList()
