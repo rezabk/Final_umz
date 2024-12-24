@@ -4,6 +4,9 @@ using Application.Services.Interface.Admin.AdminRoleService;
 using Application.Services.Interface.Logger;
 using Application.Services.Interface.ProfileService.ProfileValidator;
 using Application.ViewModels.Admin.AdminRoleService;
+using Application.ViewModels.Practice;
+using Application.ViewModels.Public;
+using Common;
 using Common.Enums;
 using Common.Enums.RolesManagment;
 using Common.ExceptionType.CustomException;
@@ -24,15 +27,17 @@ public class AdminRoleService : IAdminRoleService
 
     private readonly ICustomLoggerService<AdminRoleService> _logger;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly RoleManager<ApplicationRole> _roleManager;
 
 
     public AdminRoleService(IUnitOfWork unitOfWork,
         ICustomLoggerService<AdminRoleService> logger,
-        UserManager<ApplicationUser> userManager)
+        UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager)
     {
         _teacherRepository = unitOfWork.GetRepository<Teacher>();
         _userManager = userManager;
         _logger = logger;
+        _roleManager = roleManager;
     }
 
     public async Task<bool> AssignTeacher(RequestAssignTeacherByAdminViewModel model)
@@ -68,5 +73,35 @@ public class AdminRoleService : IAdminRoleService
             _logger.LogAddError(excpetion, "Teacher");
             throw excpetion ?? throw new ErrorException();
         }
+    }
+
+    public Task<ResponseGetUserInfoViewModel> GetAllUserInfoByFilter(RequestGetListViewModel model)
+    {
+        var users = _userManager.Users;
+        var usersPaginated = users.Paginate(model);
+
+
+        // Fetch roles for all users in advance
+        var userRolesMap = new Dictionary<string, List<string>>();
+        foreach (var user in usersPaginated)
+        {
+            userRolesMap[user.Id.ToString()] = (_userManager.GetRolesAsync(user).Result).ToList();
+        }
+
+        return Task.FromResult(new ResponseGetUserInfoViewModel
+        {
+            Count = usersPaginated.Count(),
+            TotalCount = users.Count(),
+            CurrentPage = model.Page,
+            Users = usersPaginated.Select(user => new ShowUserInfo
+            {
+                UserId = user.Id,
+                FullName = user.FirstName + " " + user.LastName,
+                StudentId = user.StudentId,
+                UserRoles = userRolesMap.ContainsKey(user.Id.ToString())
+                    ? userRolesMap[user.Id.ToString()]
+                    : new List<string>()
+            }).ToList()
+        });
     }
 }

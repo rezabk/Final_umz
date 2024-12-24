@@ -35,7 +35,7 @@ public class TeacherProjectStudentAnswerController : BaseController
     
       
     [HttpGet("[action]")]
-    public Task<IResult> ServiceProjectAnswerFile(string fileName)
+    public Task<IResult> ServeProjectAnswerFile(string fileName)
     {
         var response = _teacherProjectStudentAnswerService.GetProjectAnswerFile(fileName).Result;
         return Task.FromResult(Results.File(response.MemoryStream.ToArray(), "application/octet-stream",

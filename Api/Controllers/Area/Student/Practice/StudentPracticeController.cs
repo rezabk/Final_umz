@@ -38,9 +38,9 @@ public class StudentPracticeController : BaseController
     }
 
     [HttpGet("[action]")]
-    public Task<IResult> ServeQuestionImage(string fileName)
+    public Task<IResult> ServeQuestionFile(string fileName)
     {
-        var response = _studentPracticeService.GetQuestionImage(fileName).Result;
+        var response = _studentPracticeService.GetQuestionFile(fileName).Result;
         
         return Task.FromResult(Results.File(response.MemoryStream.ToArray(), "application/octet-stream",
             Path.GetFileName(response.FileName)));

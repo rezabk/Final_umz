@@ -141,7 +141,7 @@ public class TeacherPracticeQuestionService : ServiceBase<TeacherPracticeQuestio
         }
     }
 
-    public Task<ResponseGetFileViewModel> GetQuestionImage(string fileName)
+    public Task<ResponseGetFileViewModel> GetQuestionFile(string fileName)
     {
         var practice =
             _practiceQuestionRepository.DeferredWhere(x => x.Practice != null && x.FileName == fileName)

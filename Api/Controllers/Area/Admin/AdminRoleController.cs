@@ -1,5 +1,7 @@
 ﻿using Application.Services.Interface.Admin.AdminRoleService;
 using Application.ViewModels.Admin.AdminRoleService;
+using Application.ViewModels.Practice;
+using Application.ViewModels.Public;
 using Common.Enums.RolesManagment;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,6 +18,12 @@ public class AdminRoleController : BaseController
     public AdminRoleController(IAdminRoleService adminRoleService)
     {
         _adminRoleService = adminRoleService;
+    }
+    
+    [HttpPost("[action]")]
+    public async Task<ResponseGetUserInfoViewModel> GetAllUserInfoByFilter(RequestGetListViewModel model)
+    {
+        return await _adminRoleService.GetAllUserInfoByFilter(model);
     }
     
     [HttpPost("[action]")]
