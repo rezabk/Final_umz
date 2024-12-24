@@ -10,5 +10,5 @@ public interface ITeacherPracticeQuestionService
 
     Task<bool> RemoveQuestion(int practiceQuestionId);
     
-    Task<ResponseGetFileViewModel> GetQuestionImage(string fileName);
+    Task<ResponseGetFileViewModel> GetQuestionFile(string fileName);
 }

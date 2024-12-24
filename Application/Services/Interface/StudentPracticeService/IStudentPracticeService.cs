@@ -12,5 +12,5 @@ public interface IStudentPracticeService
 
     Task<bool> AnswerPracticeQuestion(RequestAnswerPracticeQuestionViewModel model);
     
-    Task<ResponseGetFileViewModel> GetQuestionImage(string fileName);
+    Task<ResponseGetFileViewModel> GetQuestionFile(string fileName);
 }
