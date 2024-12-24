@@ -6,6 +6,7 @@ using Common.Enums;
 using Common.ExceptionType.CustomException;
 using Domain.Entities;
 using Domain.Entities.UserAgg;
+using Domain.Entities.UserEntities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using StapSSO.Enums;

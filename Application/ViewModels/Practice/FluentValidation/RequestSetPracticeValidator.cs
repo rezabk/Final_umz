@@ -19,13 +19,13 @@ public class RequestSetPracticeValidator : AbstractValidator<RequestSetPracticeV
 
 
         RuleFor(x => x.StartDate)
-            .NotEmpty().WithMessage("تاریخ شروع تخفیف باید وارد شود")
+            .NotEmpty().WithMessage("تاریخ شروع تمرین باید وارد شود")
             .Must(BeTodayOrLater)
-            .WithMessage("تاریخ شروع تخفیف نمیتواند قبل از امروز باشد");
+            .WithMessage("تاریخ شروع تمرین نمیتواند قبل از امروز باشد");
 
         RuleFor(x => x.EndDate)
             .Must(BeTodayOrLater)
-            .WithMessage("تاریخ پایان تخفیف نمیتواند قبل از امروز باشد");
+            .WithMessage("تاریخ پایان تمرین نمیتواند قبل از امروز باشد");
 
         RuleFor(x => x)
             .Custom((model, context) =>
@@ -37,7 +37,7 @@ public class RequestSetPracticeValidator : AbstractValidator<RequestSetPracticeV
 
                     if (endDate < startDate)
                     {
-                        context.AddFailure("تاریخ پایان تخفیف نمی‌تواند قبل از تاریخ شروع تخفیف باشد.");
+                        context.AddFailure("تاریخ پایان تمرین نمی‌تواند قبل از تاریخ شروع تمرین باشد.");
                     }
                 }
             });

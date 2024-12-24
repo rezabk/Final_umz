@@ -4,6 +4,7 @@ using Application.Services.Base;
 using Application.Services.Interface.Logger;
 using Application.Services.Interface.TeacherService.TeacherPracticeQuestionService;
 using Application.ViewModels.PracticeQuestion;
+using Application.ViewModels.Public;
 using Common.ExceptionType.CustomException;
 using Domain.Entities.PracticeEntities;
 using Microsoft.AspNetCore.Hosting;
@@ -19,11 +20,11 @@ public class TeacherPracticeQuestionService : ServiceBase<TeacherPracticeQuestio
     private readonly ICustomLoggerService<TeacherPracticeQuestionService> _logger;
     private readonly IConfiguration _configuration;
     private readonly IWebHostEnvironment _hostingEnvironment;
-    private readonly IUploader _uploader;
+    private readonly ILiaraUploader _uploader;
 
     public TeacherPracticeQuestionService(IUnitOfWork unitOfWork,
         ICustomLoggerService<TeacherPracticeQuestionService> logger,
-        IConfiguration configuration, IWebHostEnvironment hostingEnvironment, IUploader uploader,
+        IConfiguration configuration, IWebHostEnvironment hostingEnvironment, ILiaraUploader uploader,
         IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
     {
         _practiceQuestionRepository = unitOfWork.GetRepository<PracticeQuestion>();
@@ -36,7 +37,8 @@ public class TeacherPracticeQuestionService : ServiceBase<TeacherPracticeQuestio
     public Task<List<ShowPracticeQuestionViewModel>> GetAllPracticeQuestionByPracticeId(int practiceId)
     {
         var practiceQuestions =
-            _practiceQuestionRepository.DeferredWhere(x => x.Practice != null && x.PracticeId == practiceId);
+            _practiceQuestionRepository.DeferredWhere(x =>
+                x.Practice != null && x.PracticeId == practiceId && x.Practice.Class.Teacher.UserId == CurrentUserId);
 
         return Task.FromResult(practiceQuestions.Select(x => new ShowPracticeQuestionViewModel
         {
@@ -56,7 +58,7 @@ public class TeacherPracticeQuestionService : ServiceBase<TeacherPracticeQuestio
             var practiceQuestion = _practiceQuestionRepository
                                        .DeferredWhere(x =>
                                            x.Practice != null &&
-                                           x.Practice.Class.TeacherId == CurrentUserId &&
+                                           x.Practice.Class.Teacher.UserId == CurrentUserId &&
                                            x.Id == model.Id && x.PracticeId == model.PracticeId)
                                        .FirstOrDefault() ??
                                    throw new NotFoundException();
@@ -65,9 +67,10 @@ public class TeacherPracticeQuestionService : ServiceBase<TeacherPracticeQuestio
             practiceQuestion.Description = model.Description;
             practiceQuestion.Title = model.Title;
 
+            if (!string.IsNullOrWhiteSpace(practiceQuestion.FileName)) _ = DeleteFile(practiceQuestion.FileName);
             if (model.File != null)
             {
-                var filePath = UploadFile(model.File);
+                var filePath = UploadFile(model.File).Result;
                 practiceQuestion.FileName = string.IsNullOrEmpty(filePath) ? null : Path.GetFileName(filePath);
                 practiceQuestion.FileExtension = string.IsNullOrEmpty(filePath) ? null : Path.GetExtension(filePath);
             }
@@ -99,7 +102,7 @@ public class TeacherPracticeQuestionService : ServiceBase<TeacherPracticeQuestio
 
         if (model.File != null)
         {
-            var filePath = UploadFile(model.File);
+            var filePath = UploadFile(model.File).Result;
             newQuestion.FileName = string.IsNullOrEmpty(filePath) ? null : Path.GetFileName(filePath);
             newQuestion.FileExtension = string.IsNullOrEmpty(filePath) ? null : Path.GetExtension(filePath);
         }
@@ -122,7 +125,7 @@ public class TeacherPracticeQuestionService : ServiceBase<TeacherPracticeQuestio
     public Task<bool> RemoveQuestion(int practiceQuestionId)
     {
         var question = _practiceQuestionRepository.DeferredWhere(x =>
-                x.Practice != null && x.Id == practiceQuestionId && x.Practice.Class.TeacherId == CurrentUserId)
+                x.Practice != null && x.Id == practiceQuestionId && x.Practice.Class.Teacher.UserId == CurrentUserId)
             .FirstOrDefault() ?? throw new NotFoundException();
 
         try
@@ -138,26 +141,30 @@ public class TeacherPracticeQuestionService : ServiceBase<TeacherPracticeQuestio
         }
     }
 
-    public Task<string> GetQuestionImage(string fileName)
+    public Task<ResponseGetFileViewModel> GetQuestionImage(string fileName)
     {
         var practice =
             _practiceQuestionRepository.DeferredWhere(x => x.Practice != null && x.FileName == fileName)
                 .FirstOrDefault() ?? throw new NotFoundException();
 
-        var folderPath = _hostingEnvironment.ContentRootPath +
-                         _configuration.GetSection("File:FilePracticeQuestions").Value;
-        var fullPath = Path.Combine(folderPath, practice.FileName);
-
-        return Task.FromResult(fullPath);
+        return Task.FromResult(new ResponseGetFileViewModel
+        {
+            FileName = practice.FileName,
+            MemoryStream = _uploader.Get(_configuration.GetSection("File:FilePracticeQuestions").Value,
+                practice.FileName, null).Result
+        });
     }
 
-
-    private string UploadFile(IFormFile file)
+    private async Task<string> UploadFile(IFormFile file)
     {
-        var fullFilePath = _uploader.UploadFile(file,
-            _hostingEnvironment.ContentRootPath + _configuration.GetSection("File:FilePracticeQuestions").Value,
-            "").Result;
+        var fileName = await _uploader.Upload(_configuration.GetSection("File:FilePracticeQuestions").Value, file,
+            null);
+        return fileName;
+    }
 
-        return fullFilePath;
+    private async Task<bool> DeleteFile(string fileName)
+    {
+        await _uploader.Delete(_configuration.GetSection("File:FilePracticeQuestions").Value, fileName, null);
+        return true;
     }
 }

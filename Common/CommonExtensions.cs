@@ -53,18 +53,29 @@ public static class CommonExtensions
             var year = yearGroup.SafeInt(0);
             var month = match.Groups["Month"].SafeInt(0);
             var day = match.Groups["Day"].SafeInt(0);
+
+            DateTime result;
             try
             {
-                return calendar.ToDateTime(year, month, day, timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds,
+                result = calendar.ToDateTime(year, month, day, timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds,
                     timeSpan.Milliseconds);
             }
             catch (Exception exDate)
             {
                 if (exDate.Message == "Day must be between 1 and 29 for month 12.\r\nParameter name: day")
-                    return calendar.ToDateTime(year, month, day - 1, timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds,
-                        timeSpan.Milliseconds);
-                throw new Exception("InvalidPersianDate");
+                    result = calendar.ToDateTime(year, month, day - 1, timeSpan.Hours, timeSpan.Minutes,
+                        timeSpan.Seconds, timeSpan.Milliseconds);
+                else
+                    throw new Exception("InvalidPersianDate");
             }
+
+
+            // Step 1: Treat as Local and Convert to UTC
+            var utcDateTime = DateTime.SpecifyKind(result, DateTimeKind.Local).ToUniversalTime();
+
+            // Step 2: Adjust for Iran Standard Time (UTC+3:30)
+            var iranTimeOffset = new TimeSpan(3, 30, 0);
+            return utcDateTime.Add(iranTimeOffset);
         }
         catch (Exception)
         {
@@ -98,18 +109,24 @@ public static class CommonExtensions
             var month = match.Groups["Month"].SafeInt(0);
             var day = match.Groups["Day"].SafeInt(0);
             var calendar = new PersianCalendar();
+
+            DateTime result;
             try
             {
-                return calendar.ToDateTime(year, month, day, timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds,
+                result = calendar.ToDateTime(year, month, day, timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds,
                     timeSpan.Milliseconds);
             }
             catch (Exception exDate)
             {
                 if (exDate.Message == "Day must be between 1 and 29 for month 12.\r\nParameter name: day")
-                    return calendar.ToDateTime(year, month, day - 1, timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds,
-                        timeSpan.Milliseconds);
-                return DateTime.MinValue;
+                    result = calendar.ToDateTime(year, month, day - 1, timeSpan.Hours, timeSpan.Minutes,
+                        timeSpan.Seconds, timeSpan.Milliseconds);
+                else
+                    throw new Exception("InvalidPersianDate");
             }
+
+            // Explicitly convert to UTC
+            return DateTime.SpecifyKind(result, DateTimeKind.Unspecified).ToUniversalTime();
         }
         catch (Exception)
         {
@@ -151,7 +168,30 @@ public static class CommonExtensions
         var second = obj.GetSecond(date);
         var dayStr = obj.GetDayOfMonth(date).CompareTo(10) >= 0 ? day.ToString() : "0" + day;
         var monthStr = obj.GetMonth(date).CompareTo(10) >= 0 ? month.ToString() : "0" + month;
-        return showTime ? $"{year}/{monthStr}/{dayStr} {hour}:{minute}:{second}" : $"{year}/{monthStr}/{dayStr}";
+        return showTime
+            ? $"{year}/{monthStr}/{dayStr} {hour }:{minute }:{second}"
+            : $"{year}/{monthStr}/{dayStr}";
+    }
+    
+    public static string ConvertMiladiToJalaliUTC(this DateTime date, bool showTime)
+    {
+        if (date <= DateTime.MinValue) return "";
+        var obj = new PersianCalendar();
+        //if (date <= DateTime.MinValue)
+        //{
+        //    date = new DateTime(622, 3, 21);
+        //}
+        var day = obj.GetDayOfMonth(date);
+        var month = obj.GetMonth(date);
+        var year = obj.GetYear(date);
+        var hour = obj.GetHour(date);
+        var minute = obj.GetMinute(date);
+        var second = obj.GetSecond(date);
+        var dayStr = obj.GetDayOfMonth(date).CompareTo(10) >= 0 ? day.ToString() : "0" + day;
+        var monthStr = obj.GetMonth(date).CompareTo(10) >= 0 ? month.ToString() : "0" + month;
+        return showTime
+            ? $"{year}/{monthStr}/{dayStr} {hour + 3}:{minute + 30}:{second}"
+            : $"{year}/{monthStr}/{dayStr}";
     }
 
     public static string ConvertMiladiToJalali(this DateTime date)

@@ -87,5 +87,14 @@ public enum MessageId
     AlreadyAnsweredQuestion = -27,
 
     [Description("مهلت ارسال پاسخ تمرین به تمام رسیده")]
-    DeadlineReached = -28,
+    DeadlineReached = -28, 
+    
+    [Description("شما درخواست جدید دارید")]
+    OpenRequest = -29,
+    
+    [Description("کاربر عوض این کلاس نیست")]
+    UserNotInClass = -30, 
+    
+    [Description("شما به این تمرین پاسخ نداده اید")]
+    NotAnswered = -31,
 }

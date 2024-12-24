@@ -3,6 +3,7 @@ using Api.Filter;
 using Application;
 using Application.IRepositories;
 using Domain.Entities.UserAgg;
+using Domain.Entities.UserEntities;
 using FluentValidation.AspNetCore;
 using Infrastructure.IOC.IdentityContextConfigs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -85,8 +86,14 @@ builder.Services.AddAuthentication(options =>
 services.AddEndpointsApiExplorer();
 services.AddSwaggerGen();
 
-services.AddEntityFrameworkSqlServer().AddDbContext<ApplicationDataBaseContext>(option =>
-    option.UseSqlServer(builder.Configuration.GetConnectionString("Application")));
+// services.AddEntityFrameworkSqlServer().AddDbContext<ApplicationDataBaseContext>(option =>
+//     option.UseSqlServer(builder.Configuration.GetConnectionString("Application")));
+
+// Using PostgreSQL configuration
+services.AddEntityFrameworkNpgsql().AddDbContext<ApplicationDataBaseContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("Application")));
+
+
 
 builder.Services.AddSwaggerGen(c =>
 {

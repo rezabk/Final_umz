@@ -17,7 +17,7 @@ public class RoleConfig : IEntityTypeConfiguration<ApplicationRole>
                 Id = userRole.GetId(),
                 Name = Enum.GetName(userRole),
                 ConcurrencyStamp = Guid.NewGuid().ToString(),
-                NormalizedName = Enum.GetName(userRole)?.Normalize()
+                NormalizedName = Enum.GetName(userRole)?.Normalize().ToUpper()
             });
     }
 }

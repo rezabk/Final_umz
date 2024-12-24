@@ -1,6 +1,7 @@
 ﻿using Application.Services.Interface.ProfileService;
 using Application.ViewModels.Profile;
 using Application.ViewModels.Profile.ChangePassword;
+using Application.ViewModels.Teacher;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,14 +16,15 @@ public class ProfileController : BaseController
     {
         _profileService = profileService;
     }
-    
+
     [HttpGet("[action]")]
-    public async Task<ResponseGetProfileViewModel> Profile( )
+    public async Task<ResponseGetProfileViewModel> Profile()
     {
         return await _profileService.Profile();
     }
+    
+  
 
- 
     [HttpPut("[action]")]
     public async Task<bool> ChangePassword([FromBody] ChangePasswordViewModel model)
     {
@@ -36,11 +38,11 @@ public class ProfileController : BaseController
     }
 
     [HttpGet("[action]")]
-    public Task<IActionResult> ServeUserImage(string fileName)
+    public Task<IResult> ServeUserImage(string fileName)
     {
-        var path = _profileService.GetUserFileImage(fileName).Result;
-        var file = System.IO.File.OpenRead(path);
-        var newName = $"{Guid.NewGuid()}.{Path.GetExtension(path)}";
-        return Task.FromResult<IActionResult>(File(file, "application/octet-stream", newName));
+        var response = _profileService.GetUserFileImage(fileName).Result;
+
+        return Task.FromResult(Results.File(response.MemoryStream.ToArray(), "application/octet-stream",
+            Path.GetFileName(response.FileName)));
     }
 }

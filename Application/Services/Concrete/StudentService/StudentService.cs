@@ -12,6 +12,7 @@ using Common.ExceptionType.CustomException;
 using Domain.Entities.ClassEntities;
 using Domain.Entities.TeacherEntities;
 using Domain.Entities.UserAgg;
+using Domain.Entities.UserEntities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -83,7 +84,8 @@ public class StudentService : ServiceBase<StudentService>, IStudentService
         if (classRoom.TotalAllowedStudent <= classRoom.Students.Count)
             throw new FormValidationException(MessageId.ClassCapacityLimit);
 
-        if (classRoom.Students.Select(x=>x.Id).Contains(student.Id)) throw new FormValidationException(MessageId.AlreadyInClass);
+        if (classRoom.Students.Select(x => x.Id).Contains(student.Id))
+            throw new FormValidationException(MessageId.AlreadyInClass);
 
         try
         {
@@ -95,6 +97,33 @@ public class StudentService : ServiceBase<StudentService>, IStudentService
         catch (Exception exception)
         {
             _logger.LogError($"Student with Id {student.Id} Failed to join class with id {classRoom.Id}");
+            throw exception ?? throw new ErrorException();
+        }
+    }
+
+    public Task<bool> LeaveClass(int classId)
+    {
+     
+        var classRoom = _classRepository.DeferredWhere(x => x.Teacher != null && x.Id == classId)
+                            .Include(x => x.Students)
+                            .FirstOrDefault() ??
+                        throw new NotFoundException();
+
+        if (!classRoom.Students.Select(x => x.Id).Contains(CurrentUserId))
+            throw new FormValidationException(MessageId.UserNotInClass);
+
+        classRoom.Students = classRoom.Students.Where(x => x.Id != CurrentUserId).ToList();
+
+
+        try
+        {
+            _classRepository.UpdateAsync(classRoom, true);
+            _logger.LogUpdateSuccess("Class", classRoom.Id);
+            return Task.FromResult(true);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogUpdateError(exception, "Class", classRoom.Id);
             throw exception ?? throw new ErrorException();
         }
     }

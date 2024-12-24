@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using Application.Services.Interface.Utils;
 using Domain.Entities.UserAgg;
+using Domain.Entities.UserEntities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -50,7 +51,7 @@ public class TokenService : ITokenService
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.Now.AddDays(3),
+            Expires = DateTime.UtcNow.AddDays(3).Add(new TimeSpan(3, 30, 0)),
             SigningCredentials = creds,
             Issuer = issuer,
             Audience = audience

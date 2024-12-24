@@ -16,6 +16,7 @@ using Common.Enums.RolesManagment;
 using Common.ExceptionType.CustomException;
 using Domain.Entities;
 using Domain.Entities.UserAgg;
+using Domain.Entities.UserEntities;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -34,14 +35,14 @@ public class AccountService : ServiceBase<AccountService>, IAccountService
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly ISmsService _smsService;
     private readonly ITokenService _tokenService;
-    private readonly IUploader _uploader;
+    private readonly ILiaraUploader _uploader;
     private readonly IAccountValidatorService _accountValidatorService;
     private readonly IConfiguration _configuration;
     private readonly IWebHostEnvironment _hostingEnvironment;
 
     public AccountService(IHttpContextAccessor contextAccessor, IUnitOfWork unitOfWork,
         ICustomLoggerService<AccountService> logger,
-        ISmsService smsService, ITokenService tokenService, IUploader uploader,
+        ISmsService smsService, ITokenService tokenService, ILiaraUploader uploader,
         IAccountValidatorService accountValidatorService,
         IConfiguration configuration, IWebHostEnvironment hostingEnvironment,
         UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager) : base(contextAccessor)
@@ -88,6 +89,7 @@ public class AccountService : ServiceBase<AccountService>, IAccountService
         }
         catch (Exception exception)
         {
+              await _userManager.DeleteAsync(newUser);
             _logger.LogAddError(exception, "User");
             throw new ErrorException();
         }

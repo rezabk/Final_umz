@@ -11,4 +11,6 @@ public interface IStudentService
     Task<List<ShowClassForUser>> GetAllClassByTeacherId(int teacherId);
 
     Task<bool> JoinClass(int classId);
+
+    Task<bool> LeaveClass(int classId);
 }

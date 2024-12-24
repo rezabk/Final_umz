@@ -39,11 +39,10 @@ public class TeacherPracticeQuestionController : BaseController
     }
 
     [HttpGet("[action]")]
-    public Task<IActionResult> ServeQuestionImage(string fileName)
+    public Task<IResult> ServeQuestionImage(string fileName)
     {
-        var path = _teacherPracticeQuestionService.GetQuestionImage(fileName).Result;
-        var file = System.IO.File.OpenRead(path);
-        var newName = $"{Guid.NewGuid()}.{Path.GetExtension(path)}";
-        return Task.FromResult<IActionResult>(File(file, "application/octet-stream", newName));
+        var response = _teacherPracticeQuestionService.GetQuestionImage(fileName).Result;
+        return Task.FromResult(Results.File(response.MemoryStream.ToArray(), "application/octet-stream",
+            Path.GetFileName(response.FileName)));
     }
 }

@@ -6,6 +6,6 @@ public class AnswerPracticeQuestionValidator : AbstractValidator<RequestAnswerPr
 {
     public AnswerPracticeQuestionValidator()
     {
-        
+        RuleFor(x => x.Description).NotEmpty().NotNull().WithMessage("توضیحات نمیتواند خالی باشد");
     }
 }

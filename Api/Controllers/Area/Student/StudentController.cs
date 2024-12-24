@@ -38,4 +38,10 @@ public class StudentController : BaseController
     {
         return await _studentService.JoinClass(classId);
     }
+    
+    [HttpDelete("[action]")]
+    public async Task<bool> LeaveClass(int classId)
+    {
+        return await _studentService.LeaveClass(classId);
+    }
 }
