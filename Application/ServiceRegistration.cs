@@ -15,6 +15,7 @@ using Application.Services.Concrete.StudentService;
 using Application.Services.Concrete.StudentTicketService;
 using Application.Services.Concrete.TeacherRequestService;
 using Application.Services.Concrete.TeacherService.TeacherClassService;
+using Application.Services.Concrete.TeacherService.TeacherCommunityService;
 using Application.Services.Concrete.TeacherService.TeacherPracticeQuestionService;
 using Application.Services.Concrete.TeacherService.TeacherPracticeService;
 using Application.Services.Concrete.TeacherService.TeacherPracticeStudentAnswerService;
@@ -36,6 +37,7 @@ using Application.Services.Interface.StudentService;
 using Application.Services.Interface.StudentTicketService;
 using Application.Services.Interface.TeacherRequestService;
 using Application.Services.Interface.TeacherService.TeacherClassService;
+using Application.Services.Interface.TeacherService.TeacherCommunityService;
 using Application.Services.Interface.TeacherService.TeacherPracticeQuestionService;
 using Application.Services.Interface.TeacherService.TeacherPracticeService;
 using Application.Services.Interface.TeacherService.TeacherPracticeStudentAnswerService;
@@ -95,6 +97,7 @@ public static class ServiceRegistration
         services.AddScoped<ITeacherRequestAdminService, TeacherRequestAdminService>();
         services.AddScoped<ITeacherProjectStudentAnswerService, TeacherProjectStudentAnswerService>();
         services.AddScoped<ITeacherTicketService, TeacherTicketService>();
+        services.AddScoped<ITeacherCommunityService, TeacherCommunityService>();
 
 
         services.AddScoped<ITokenService, TokenService>();

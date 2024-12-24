@@ -1,8 +1,10 @@
-﻿namespace Common.Enums.RolesManagment;
+﻿using System.ComponentModel;
+
+namespace Common.Enums.RolesManagment;
 
 public enum UserRolesEnum
 {
-    Admin = 1,
-    Teacher = 2,
-    Student = 3
+    [Description("ادمین")] Admin = 1,
+    [Description("استاد")] Teacher = 2,
+    [Description("دانشجو")] Student = 3
 }

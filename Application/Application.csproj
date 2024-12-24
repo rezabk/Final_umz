@@ -35,10 +35,5 @@
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Services\Concrete\TeacherService\TeacherCommunityService\" />
-      <Folder Include="Services\Interface\TeacherService\TeacherCommunityService\" />
-    </ItemGroup>
     
 </Project>

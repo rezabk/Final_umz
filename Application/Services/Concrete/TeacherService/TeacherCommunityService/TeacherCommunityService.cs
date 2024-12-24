@@ -1,32 +1,30 @@
-﻿using System.Runtime.InteropServices.ComTypes;
-using Application.Cross.Interface;
-using Application.IRepositories;
+﻿using Application.IRepositories;
 using Application.Services.Base;
 using Application.Services.Interface.Logger;
-using Application.Services.Interface.StudentCommunityService;
+using Application.Services.Interface.TeacherService.TeacherCommunityService;
 using Application.ViewModels.Community;
 using Common;
 using Common.Enums;
 using Common.Enums.RolesManagment;
 using Common.ExceptionType.CustomException;
-using DocumentFormat.OpenXml.InkML;
 using Domain.Entities.CommunityEntities;
 using Domain.Entities.UserEntities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace Application.Services.Concrete.StudentCommunityService;
+namespace Application.Services.Concrete.TeacherService.TeacherCommunityService;
 
-public class StudentCommunityService : ServiceBase<StudentCommunityService>, IStudentCommunityService
+public class TeacherCommunityService : ServiceBase<TeacherCommunityService>, ITeacherCommunityService
 {
     private readonly IRepository<Community> _communityRepository;
     private readonly IRepository<CommunityMessage> _communityMessageRepository;
-    private readonly ICustomLoggerService<StudentCommunityService> _logger;
+    private readonly ICustomLoggerService<TeacherCommunityService> _logger;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IHttpContextAccessor _contextAccessor;
 
-    public StudentCommunityService(ICustomLoggerService<StudentCommunityService> logger,
+
+    public TeacherCommunityService(ICustomLoggerService<TeacherCommunityService> logger,
         UserManager<ApplicationUser> userManager, IHttpContextAccessor contextAccessor, IUnitOfWork unitOfWork
     ) : base(contextAccessor)
     {
@@ -37,17 +35,15 @@ public class StudentCommunityService : ServiceBase<StudentCommunityService>, ISt
         _userManager = userManager;
     }
 
-
     public Task<ResponseGetCommunityViewModel> GetCommunityByClassId(int classId)
     {
-        var community = _communityRepository.DeferredWhere(x => x.ClassId == classId)
+        var community = _communityRepository
+                            .DeferredWhere(x => x.ClassId == classId && x.Teacher.UserId == CurrentUserId)
                             .Include(x => x.Class.Teacher).ThenInclude(x => x.User)
                             .Include(x => x.Class)
                             .ThenInclude(x => x.Students).FirstOrDefault() ??
                         throw new NotFoundException();
 
-        if (!community.Class.Students.Select(x => x.Id).Contains(CurrentUserId))
-            throw new FormValidationException(MessageId.UserNotInClass);
 
         return Task.FromResult(new ResponseGetCommunityViewModel
         {
@@ -61,9 +57,8 @@ public class StudentCommunityService : ServiceBase<StudentCommunityService>, ISt
 
     public Task<ResponseGetCommunityMessageViewModel> GetCommunityMessages(RequestGetCommunityMessageViewModel model)
     {
-        var messages = _communityMessageRepository.DeferredWhere(x => x.CommunityId == model.CommunityId
-                                                                      && x.Community.Class.Students.Select(x => x.Id)
-                                                                          .Contains(CurrentUserId))
+        var messages = _communityMessageRepository.DeferredWhere(x =>
+                x.CommunityId == model.CommunityId && x.Community.Teacher.UserId == CurrentUserId)
             .Include(x => x.SentByUser)
             .OrderByDescending(x => x.Id);
 
@@ -91,11 +86,10 @@ public class StudentCommunityService : ServiceBase<StudentCommunityService>, ISt
     public Task<int> SendMessage(RequestSendCommunityMessageViewModel model)
     {
         var community =
-            _communityRepository.DeferredWhere(x => x.Id == model.CommunityId).Include(x => x.Class)
+            _communityRepository.DeferredWhere(x => x.Id == model.CommunityId && x.Teacher.UserId == CurrentUserId)
+                .Include(x => x.Class)
                 .ThenInclude(x => x.Students).FirstOrDefault() ?? throw new NotFoundException();
 
-        if (!community.Class.Students.Select(x => x.Id).Contains(CurrentUserId))
-            throw new FormValidationException(MessageId.UserNotInClass);
 
         var newMessage = new CommunityMessage
         {
@@ -103,7 +97,7 @@ public class StudentCommunityService : ServiceBase<StudentCommunityService>, ISt
             Message = model.Message,
             SentTime = DateTime.UtcNow,
             SentByUserId = CurrentUserId,
-            SentByRole = UserRolesEnum.Student
+            SentByRole = UserRolesEnum.Teacher
         };
         try
         {
@@ -121,7 +115,7 @@ public class StudentCommunityService : ServiceBase<StudentCommunityService>, ISt
     public Task<bool> DeleteMessage(int messageId)
     {
         var message =
-            _communityMessageRepository.DeferredWhere(x => x.Id == messageId && x.SentByUserId == CurrentUserId)
+            _communityMessageRepository.DeferredWhere(x => x.Id == messageId)
                 .FirstOrDefault() ?? throw new NotFoundException();
 
         try
@@ -133,6 +127,26 @@ public class StudentCommunityService : ServiceBase<StudentCommunityService>, ISt
         catch (Exception exception)
         {
             _logger.LogRemoveError(exception, "CommunityMessage", message.Id);
+            throw exception ?? throw new ErrorException();
+        }
+    }
+
+    public Task<bool> DeleteAllCommunityMessage(int communityId)
+    {
+        var messages =
+            _communityMessageRepository.DeferredWhere(x => x.CommunityId == communityId);
+
+        if (messages == null || !messages.Any()) throw new NotFoundException();
+
+        try
+        {
+            _communityMessageRepository.RemoveRangeAsync(messages, true);
+            //_logger.LogRemoveSuccess("CommunityMessage", message.Id);
+            return Task.FromResult(true);
+        }
+        catch (Exception exception)
+        {
+            //_logger.LogRemoveError(exception, "CommunityMessage", message.Id);
             throw exception ?? throw new ErrorException();
         }
     }
