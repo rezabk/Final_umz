@@ -8,12 +8,14 @@ using Application.Services.Concrete.Logger;
 using Application.Services.Concrete.ProfileService;
 using Application.Services.Concrete.ProfileService.ProfileValidator;
 using Application.Services.Concrete.Sms;
+using Application.Services.Concrete.StudentCommunityService;
 using Application.Services.Concrete.StudentPracticeService;
 using Application.Services.Concrete.StudentProjectService;
 using Application.Services.Concrete.StudentService;
 using Application.Services.Concrete.StudentTicketService;
 using Application.Services.Concrete.TeacherRequestService;
 using Application.Services.Concrete.TeacherService.TeacherClassService;
+using Application.Services.Concrete.TeacherService.TeacherCommunityService;
 using Application.Services.Concrete.TeacherService.TeacherPracticeQuestionService;
 using Application.Services.Concrete.TeacherService.TeacherPracticeService;
 using Application.Services.Concrete.TeacherService.TeacherPracticeStudentAnswerService;
@@ -28,12 +30,14 @@ using Application.Services.Interface.Logger;
 using Application.Services.Interface.ProfileService;
 using Application.Services.Interface.ProfileService.ProfileValidator;
 using Application.Services.Interface.Sms;
+using Application.Services.Interface.StudentCommunityService;
 using Application.Services.Interface.StudentPracticeService;
 using Application.Services.Interface.StudentProjectService;
 using Application.Services.Interface.StudentService;
 using Application.Services.Interface.StudentTicketService;
 using Application.Services.Interface.TeacherRequestService;
 using Application.Services.Interface.TeacherService.TeacherClassService;
+using Application.Services.Interface.TeacherService.TeacherCommunityService;
 using Application.Services.Interface.TeacherService.TeacherPracticeQuestionService;
 using Application.Services.Interface.TeacherService.TeacherPracticeService;
 using Application.Services.Interface.TeacherService.TeacherPracticeStudentAnswerService;
@@ -52,6 +56,8 @@ using Application.ViewModels.Admin.AdminRoleService;
 using Application.ViewModels.Admin.AdminRoleService.FluentValidation;
 using Application.ViewModels.Class;
 using Application.ViewModels.Class.FluentValidation;
+using Application.ViewModels.Community;
+using Application.ViewModels.Community.FluentValidation;
 using Application.ViewModels.Practice;
 using Application.ViewModels.Practice.FluentValidation;
 using Application.ViewModels.PracticeQuestion;
@@ -72,7 +78,7 @@ public static class ServiceRegistration
     public static IServiceCollection RegisterAllApplicationServices(this IServiceCollection services)
     {
         services.AddScoped<IAdminRoleService, AdminRoleService>();
-        
+
         services.AddScoped<IAccountService, AccountService>();
         services.AddScoped<IAccountValidatorService, AccountValidatorService>();
         services.AddScoped<IProfileValidator, ProfileValidator>();
@@ -82,6 +88,7 @@ public static class ServiceRegistration
         services.AddScoped<IStudentService, StudentService>();
         services.AddScoped<IStudentPracticeService, StudentPracticeService>();
         services.AddScoped<IStudentProjectService, StudentProjectService>();
+        services.AddScoped<IStudentCommunityService, StudentCommunityService>();
         services.AddScoped<ITicketStudentService, TicketStudentService>();
         services.AddScoped<ITeacherPracticeQuestionService, TeacherPracticeQuestionService>();
         services.AddScoped<ITeacherProjectService, TeacherProjectService>();
@@ -90,8 +97,8 @@ public static class ServiceRegistration
         services.AddScoped<ITeacherRequestAdminService, TeacherRequestAdminService>();
         services.AddScoped<ITeacherProjectStudentAnswerService, TeacherProjectStudentAnswerService>();
         services.AddScoped<ITeacherTicketService, TeacherTicketService>();
-       
-        
+        services.AddScoped<ITeacherCommunityService, TeacherCommunityService>();
+
 
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IUploader, Uploader>();
@@ -99,7 +106,6 @@ public static class ServiceRegistration
         services.AddScoped<ISmsService, SmsService>();
 
         services.AddSingleton(typeof(ICustomLoggerService<>), typeof(CustomLoggerService<>));
-      
 
 
         services.AddLogging();
@@ -110,7 +116,7 @@ public static class ServiceRegistration
     public static IServiceCollection RegisterFluentValidationServices(this IServiceCollection services)
     {
         services.AddTransient<IValidator<RegisterOrLoginViewModel>, RegisterOrLoginValidator>();
-    services.AddTransient<IValidator<ChangePasswordViewModel>, ChangePasswordValidator>();
+        services.AddTransient<IValidator<ChangePasswordViewModel>, ChangePasswordValidator>();
         services.AddTransient<IValidator<RequestSetClassViewModel>, SetClassViewModelValidator>();
         services.AddTransient<IValidator<RequestAssignTeacherByAdminViewModel>, AssignTeacherByAdminValidator>();
         services.AddTransient<IValidator<RegisterViewModel>, RegisterValidator>();
@@ -122,7 +128,8 @@ public static class ServiceRegistration
         services.AddTransient<IValidator<RequestCreateTicketViewModel>, RequestCreateTicketValidator>();
         services.AddTransient<IValidator<RequestSendMessageViewModel>, RequestSendMessageValidator>();
         services.AddTransient<IValidator<RequestTeacherCreateTicketViewModel>, RequestTeacherCreateTicketValidator>();
-        
+        services.AddTransient<IValidator<RequestSendCommunityMessageViewModel>, RequestSendCommunityMessageValidator>();
+
         return services;
     }
 }

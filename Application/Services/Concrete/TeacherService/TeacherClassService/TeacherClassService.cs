@@ -3,11 +3,13 @@ using Application.Services.Base;
 using Application.Services.Interface.Logger;
 using Application.Services.Interface.TeacherService.TeacherClassService;
 using Application.ViewModels.Class;
+using Application.ViewModels.Practice;
 using Application.ViewModels.Public;
 using Common;
 using Common.Enums;
 using Common.ExceptionType.CustomException;
 using Domain.Entities.ClassEntities;
+using Domain.Entities.CommunityEntities;
 using Domain.Entities.TeacherEntities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -69,6 +71,19 @@ public class TeacherClassService : ServiceBase<TeacherClassService>, ITeacherCla
         });
     }
 
+    public Task<List<UserAnsweredList>> GetAllClassStudents(int classId)
+    {
+        var classStudents = _classRepository.DeferredWhere(x => x.Id == classId && x.Teacher.UserId == CurrentUserId)
+            .Select(x => x.Students).FirstOrDefault() ?? throw new NotFoundException();
+
+        return Task.FromResult(classStudents.Select(x => new UserAnsweredList
+        {
+            UserId = x.Id,
+            FullName = x.FirstName + " " + x.LastName,
+            StudentId = x.StudentId
+        }).ToList());
+    }
+
     public Task<int> SetClass(RequestSetClassViewModel model)
     {
         #region UPDATE CLASS
@@ -87,6 +102,31 @@ public class TeacherClassService : ServiceBase<TeacherClassService>, ITeacherCla
         return result;
 
         #endregion
+    }
+
+    public Task<bool> RemoveStudent(int classId, int userId)
+    {
+        var classRoom = _classRepository.DeferredWhere(x => x.Teacher.UserId == CurrentUserId && x.Id == classId)
+                            .Include(x => x.Students)
+                            .FirstOrDefault() ??
+                        throw new NotFoundException();
+
+        if (!classRoom.Students.Select(x => x.Id).Contains(userId))
+            throw new FormValidationException(MessageId.UserNotInClass);
+
+        classRoom.Students = classRoom.Students.Where(x => x.Id != userId).ToList();
+
+        try
+        {
+            _classRepository.UpdateAsync(classRoom, true);
+            _logger.LogUpdateSuccess("Class", classRoom.Id);
+            return Task.FromResult(true);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogUpdateError(exception, "Class", classRoom.Id);
+            throw exception ?? throw new ErrorException();
+        }
     }
 
     public Task<bool> RemoveClass(int classId)
@@ -114,6 +154,9 @@ public class TeacherClassService : ServiceBase<TeacherClassService>, ITeacherCla
 
     private Task<int> AddClass(RequestSetClassViewModel model)
     {
+        var teacherId = _teacherRepository.DeferredWhere(x => x.UserId == CurrentUserId).Select(x => x.Id)
+            .FirstOrDefault();
+
         var newClass = new Class
         {
             Description = model.Description,
@@ -121,8 +164,11 @@ public class TeacherClassService : ServiceBase<TeacherClassService>, ITeacherCla
             TotalAllowedStudent = model.TotalAllowedStudent,
             UniversityName = model.UniversityName,
             Title = model.Title,
-            TeacherId = _teacherRepository.DeferredWhere(x => x.UserId == CurrentUserId).Select(x => x.Id)
-                .FirstOrDefault()
+            TeacherId = teacherId,
+            Community = new Community()
+            {
+                TeacherId = teacherId
+            }
         };
 
         try
