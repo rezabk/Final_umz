@@ -51,7 +51,7 @@ public class TeacherTicketService : ServiceBase<TeacherTicketService>, ITeacherT
             .Include(x => x.User)
             .Include(x => x.Class)
             .Include(x => x.Teacher).ThenInclude(x => x.User)
-            .OrderByDescending(x=>x.Id)
+            .OrderByDescending(x => x.Id)
             .ToList();
 
 
@@ -81,7 +81,7 @@ public class TeacherTicketService : ServiceBase<TeacherTicketService>, ITeacherT
             .Include(x => x.User)
             .Include(x => x.Class)
             .Include(x => x.Teacher).ThenInclude(x => x.User)
-            .OrderByDescending(x=>x.Id)
+            .OrderByDescending(x => x.Id)
             .ToList();
 
 
@@ -111,7 +111,7 @@ public class TeacherTicketService : ServiceBase<TeacherTicketService>, ITeacherT
             .Include(x => x.User)
             .Include(x => x.Class)
             .Include(x => x.Teacher).ThenInclude(x => x.User)
-            .OrderByDescending(x=>x.Id)
+            .OrderByDescending(x => x.Id)
             .ToList();
 
 
@@ -141,7 +141,7 @@ public class TeacherTicketService : ServiceBase<TeacherTicketService>, ITeacherT
             .Include(x => x.User)
             .Include(x => x.Class)
             .Include(x => x.Teacher).ThenInclude(x => x.User)
-            .OrderByDescending(x=>x.Id)
+            .OrderByDescending(x => x.Id)
             .ToList();
 
 
@@ -319,6 +319,47 @@ public class TeacherTicketService : ServiceBase<TeacherTicketService>, ITeacherT
                 SentByFullName = x.SentByUser.FirstName + " " + x.SentByUser.LastName
             }).ToList()
         });
+    }
+
+
+    public Task<bool> RemoveTicket(int ticketId)
+    {
+        var ticket =
+            _ticketRepository.DeferredWhere(x => x.Id == ticketId && x.Teacher.UserId == CurrentUserId)
+                .FirstOrDefault() ??
+            throw new NotFoundException();
+
+        try
+        {
+            _ticketRepository.RemoveAsync(ticket, true);
+            _logger.LogRemoveSuccess("Ticket", ticket.Id);
+            return Task.FromResult(true);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogRemoveError(exception, "Ticket", ticket.Id);
+            throw new ErrorException();
+        }
+    }
+
+    public Task<bool> RemoveTicketMessage(int ticketMessageId)
+    {
+        var ticketMessage =
+            _ticketMessageRepository
+                .DeferredWhere(x => x.Id == ticketMessageId && x.Ticket.Teacher.UserId == CurrentUserId)
+                .FirstOrDefault() ?? throw new NotFoundException();
+
+        try
+        {
+            _ticketMessageRepository.RemoveAsync(ticketMessage, true);
+            _logger.LogRemoveSuccess("TicketMessage", ticketMessage.Id);
+            return Task.FromResult(true);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogRemoveError(exception, "TicketMessage", ticketMessage.Id);
+            throw new ErrorException();
+        }
     }
 
     public Task<ResponseGetFileViewModel> GetTicketFile(string fileName)

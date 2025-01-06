@@ -67,6 +67,18 @@ public class StudentTicketController : BaseController
     {
         return await _ticketStudentService.GetAllTicketTeacherMessages(ticketId);
     }
+    
+    [HttpDelete("[action]")]
+    public async Task<bool> RemoveTicket(int ticketId)
+    {
+        return await _ticketStudentService.RemoveTicket(ticketId);
+    }
+    
+    [HttpDelete("[action]")]
+    public async Task<bool> RemoveTicketMessage(int ticketMessageId)
+    {
+        return await _ticketStudentService.RemoveTicketMessage(ticketMessageId);
+    }
 
     [HttpGet("[action]")]
     public Task<IResult> ServeTicketFile(string fileName)

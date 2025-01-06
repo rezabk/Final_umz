@@ -68,6 +68,18 @@ public class TeacherTicketController : BaseController
         return await _teacherTicketService.CloseTicket(ticketId);
     }
     
+    [HttpDelete("[action]")]
+    public async Task<bool> RemoveTicket(int ticketId)
+    {
+        return await _teacherTicketService.RemoveTicket(ticketId);
+    }
+    
+    [HttpDelete("[action]")]
+    public async Task<bool> RemoveTicketMessage(int ticketMessageId)
+    {
+        return await _teacherTicketService.RemoveTicketMessage(ticketMessageId);
+    }
+    
     [HttpGet("[action]")]
     public async Task<ResponseGetAllTicketMessagesViewModel> GetAllTicketMessages(int ticketId)
     {

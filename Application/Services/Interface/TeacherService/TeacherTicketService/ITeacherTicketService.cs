@@ -23,5 +23,9 @@ public interface ITeacherTicketService
 
     Task<ResponseGetAllTicketMessagesViewModel> GetAllTicketMessages(int ticketId);
     
+    Task<bool> RemoveTicket(int ticketId);
+
+    Task<bool> RemoveTicketMessage(int ticketMessageId);
+    
     Task<ResponseGetFileViewModel> GetTicketFile(string fileName);
 }

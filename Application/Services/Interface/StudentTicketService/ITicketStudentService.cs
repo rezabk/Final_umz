@@ -22,6 +22,9 @@ public interface ITicketStudentService
     
     Task<ResponseGetAllTicketMessagesViewModel> GetAllTicketTeacherMessages(int ticketId);
 
+    Task<bool> RemoveTicket(int ticketId);
+
+    Task<bool> RemoveTicketMessage(int ticketMessageId);
 
     Task<ResponseGetFileViewModel> GetTicketFile(string fileName);
 }
